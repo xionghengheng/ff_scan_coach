@@ -1,8 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/xionghengheng/ff_plib/db"
+	"github.com/xionghengheng/ff_plib/db/dao"
+	"github.com/xionghengheng/ff_plib/db/model"
 	"log"
 	"net/http"
 	"time"
@@ -15,6 +18,9 @@ func main() {
 
 	autoScanCoachPersonalPageData()
 
+	//测试接口，清空用户信息
+	http.HandleFunc("/api/test", ForTestHandler)
+
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
 
@@ -25,4 +31,9 @@ func autoScanCoachPersonalPageData() {
 			ScanCoachPersonalPageData()
 		}
 	}()
+}
+
+// ForTestHandler
+func ForTestHandler(w http.ResponseWriter, r *http.Request) {
+	return
 }
