@@ -1,56 +1,28 @@
-package service_coach
+package main
 
 import (
-	"FunFitnessTrainer/comm"
-	"FunFitnessTrainer/db/dao"
+	"github.com/xionghengheng/fun_fit_plib/comm"
+	"github.com/xionghengheng/fun_fit_plib/db/dao"
 	"encoding/json"
 	"fmt"
-	"net/http"
+	"time"
 )
 
-type ChangeRoleReq struct {
-	Role        string `json:"role"`          // coach or user
-	BindCoachId int    `json:"bind_coach_id"` // 如果转变为coach身份，绑定的coachid，传0，则默认绑定第一个教练
-}
-
-type ChangeRoleRsp struct {
-	Code     int    `json:"code"`
-	ErrorMsg string `json:"errorMsg,omitempty"`
-}
-
-func getChangeRoleReq(r *http.Request) (ChangeRoleReq, error) {
-	req := ChangeRoleReq{}
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		return req, err
-	}
-	defer r.Body.Close()
-	return req, nil
-}
-
-// ChangeRoleHandler 拉取学员主页
-func ChangeRoleHandler(w http.ResponseWriter, r *http.Request) {
-	strOpenId := r.Header.Get("X-WX-OPENID")
-	req, err := getChangeRoleReq(r)
-	rsp := &ChangeRoleRsp{}
-
-	//打日志要加换行，不然不会刷到屏幕
-	Printf("GetTraineePageHandler start, openid:%s\n", strOpenId)
-
-	defer func() {
-		msg, err := json.Marshal(rsp)
-		if err != nil {
-			fmt.Fprint(w, "内部错误")
-			return
-		}
-		w.Header().Set("content-type", "application/json")
-		w.Write(msg)
-	}()
-
+// ScanCoachPersonalPageData 扫描生成教练端主页的计数信息
+func ScanCoachPersonalPageData() {
+	Printf("scan start, beg_time:%s", time.Now().Format("2006-01-02 15:04:05"))
+	err := doScan()
 	if err != nil {
-		rsp.Code = -993
-		rsp.ErrorMsg = err.Error()
+		Printf("doScan err, err:%+v", err)
 		return
 	}
+	Printf("scan end, end_time:%s", time.Now().Format("2006-01-02 15:04:05"))
+}
+
+// ScanCoachPersonalPageData 扫描生成教练端主页的计数信息
+func doScan() error {
+
+	dao.ImpPaymentOrder.AddOrder()
 
 	if len(strOpenId) == 0 {
 		rsp.Code = -10003
