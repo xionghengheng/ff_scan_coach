@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/xionghengheng/fun_fit_plib/db"
+	"github.com/xionghengheng/ff_plib/db"
 	"log"
 	"net/http"
 	"time"
