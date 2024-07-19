@@ -24,8 +24,6 @@ func doScan() error {
 		Printf("GetCoachAll err, err:%+v", err)
 		return err
 	}
-	Printf("GetCoachAll succ, vecCoachModel:%+v", vecCoachModel)
-
 	unMonthBegTs := GetFirstOfMonthBegTimestamp()
 
 	for _,v := range vecCoachModel{
@@ -45,9 +43,13 @@ func genCoachData(coachId int, unMonthBegTs int64){
 		return
 	}
 
-	if len(vecPaymentOrderModel) == 0{
+	//统计各个维度的计数
+	vecCoursePackageSingleLessonModel, err := dao.ImpCoursePackageSingleLesson.GetCompletedSingleLessonListByCoachId(coachId, unMonthBegTs)
+	if err != nil{
+		Printf("GetCompletedSingleLessonListByCoachId err, err:%+v coachId:%d", err, coachId)
 		return
 	}
+
 
 	mapPayUser := make(map[int64]bool)
 	var unSaleRevenue uint32
@@ -59,14 +61,25 @@ func genCoachData(coachId int, unMonthBegTs int64){
 			mapPayUser[v.PayerUID] = true
 		}
 	}
-	
+
+	mapLessonUserCnt := make(map[int64]bool)
+	var unLessonCnt uint32
+	for _,v := range vecCoursePackageSingleLessonModel{
+		unLessonCnt += 1
+		if _,ok:= mapLessonUserCnt[v.Uid];ok{
+			continue
+		}else{
+			mapLessonUserCnt[v.Uid] = true
+		}
+	}
+
 	//添加到统计表里
 	stCoachMonthlyStatisticModel := &model.CoachMonthlyStatisticModel{}
 	stCoachMonthlyStatisticModel.CoachID = coachId
 	stCoachMonthlyStatisticModel.MonthBegTs = unMonthBegTs
 	stCoachMonthlyStatisticModel.PayUserCnt = uint32(len(mapPayUser))
-	stCoachMonthlyStatisticModel.LessonCnt = 1
-	stCoachMonthlyStatisticModel.LessonUserCnt = 1
+	stCoachMonthlyStatisticModel.LessonCnt = unLessonCnt
+	stCoachMonthlyStatisticModel.LessonUserCnt = uint32(len(mapLessonUserCnt))
 	stCoachMonthlyStatisticModel.SaleRevenue = unSaleRevenue
 	err = dao.ImpCoachClientMonthlyStatistic.AddItem(stCoachMonthlyStatisticModel)
 	if err != nil {
