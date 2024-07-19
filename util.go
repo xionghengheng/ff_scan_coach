@@ -5,6 +5,7 @@ import (
 	"path"
 	"runtime"
 	"strings"
+	"time"
 )
 
 // 获取调用者的文件名和函数名
@@ -34,4 +35,13 @@ func Printf(format string, args ...interface{}) {
 	}
 	format = fmt.Sprintf("[%s:%s] %s\n", fileName, funcName, format)
 	fmt.Printf(format, args...)
+}
+
+// GetFirstOfMonthBegTimestamp 返回当前时间所在月份1号的开始时间的 Unix 时间戳
+func GetFirstOfMonthBegTimestamp() int64 {
+	now := time.Now()
+	year, month, _ := now.Date()
+	location := now.Location()
+	firstOfMonth := time.Date(year, month, 1, 0, 0, 0, 0, location)
+	return firstOfMonth.Unix()
 }
