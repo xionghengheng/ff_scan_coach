@@ -8,20 +8,40 @@ import (
 	"time"
 )
 
+// enableCORS 中间件函数，用于设置 CORS 头
+func enableCORS(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		if r.Method == "OPTIONS" {
+			return
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+
 func main() {
 	if err := db.Init(); err != nil {
 		panic(fmt.Sprintf("mysql init failed with %+v", err))
 	}
 
+	mux := http.NewServeMux()
+	handler := enableCORS(mux)
+
+	mux.HandleFunc("/api/getUserStatistic", GetUserStatiticHandler)
+
+	mux.HandleFunc("/api/getLessonStatistic", GetLessonStatiticHandler)
+
+
 	autoScanCoachPersonalPageData()
 
 	autoScanAllCoursePackageSingleLesson()
 
-	http.HandleFunc("/api/getUserStatistic", GetUserStatiticHandler)
-
-	http.HandleFunc("/api/getLessonStatistic", GetLessonStatiticHandler)
-
-	log.Fatal(http.ListenAndServe(":80", nil))
+	if err := http.ListenAndServe(":80", handler); err != nil {
+		log.Fatalf("服务器启动失败: %v", err)
+	}
 }
 
 //扫描订单表和课程表，生成教练单月的营收数据统计（每17分钟扫描一次）
