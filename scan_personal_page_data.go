@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-// ScanCoachPersonalPageData 扫描生成教练端主页的计数信息
+// 扫描生成教练端主页的计数信息
 func ScanCoachPersonalPageData() {
 	Printf("scan start, beg_time:%s", time.Now().Format("2006-01-02 15:04:05"))
 	err := doScan()
@@ -43,7 +43,6 @@ func genCoachData(coachId int, unMonthBegTs int64){
 		return
 	}
 
-	//统计各个维度的计数
 	vecCoursePackageSingleLessonModel, err := dao.ImpCoursePackageSingleLesson.GetCompletedSingleLessonListByCoachId(coachId, unMonthBegTs)
 	if err != nil{
 		Printf("GetCompletedSingleLessonListByCoachId err, err:%+v coachId:%d", err, coachId)
