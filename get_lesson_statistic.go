@@ -98,7 +98,6 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	rsp.TotalCoursePurchasers = int64(len(mapPayPackageUser))
-	rsp.TotalRedemptionAmount = 1
 
 	var vecAllSingleLesson []model.CoursePackageSingleLessonModel
 	turnPageTs = 0
@@ -118,9 +117,17 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		vecAllSingleLesson = append(vecAllSingleLesson, tmpVecAllSingleLesson...)
 	}
 
+	mapCourse, err := comm.GetAllCouse()
+	if err != nil {
+		rsp.Code = -9111
+		rsp.ErrorMsg = err.Error()
+		return
+	}
+
 	for _, v := range vecAllSingleLesson {
 		if v.Status == model.En_LessonStatusCompleted{
 			rsp.TotalClassesAttended += 1
+			rsp.TotalRedemptionAmount += int64(mapCourse[v.CourseID].Price)
 		}
 		if v.ScheduleBegTs > dayBegTs {
 			if v.Status == model.En_LessonStatusCompleted {
