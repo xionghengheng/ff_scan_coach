@@ -17,12 +17,12 @@ type GetUserStatisticReq struct {
 type GetUserStatiticRsp struct {
 	Code                     int    `json:"code"`
 	ErrorMsg                 string `json:"errorMsg,omitempty"`
-	TotalUsers               int    // 总注册人数
-	TotalSubscriptions       int    // 总订阅数
-	TotalSubscriptionRevenue int    // 订阅支付总金额
-	UnsubscribedUsers        int    // 注册但未订阅用户数
-	NewUsersToday            int    // 今日新增注册数
-	NewSubscriptionsToday    int    // 今日新增订阅数
+	TotalUsers               int    `json:"total_users"`                // 总注册人数
+	TotalSubscriptions       int    `json:"total_subscriptions"`        // 总订阅数
+	TotalSubscriptionRevenue int    `json:"total_subscription_revenue"` // 订阅支付总金额
+	UnsubscribedUsers        int    `json:"unsubscribed_users"`         // 注册但未订阅用户数
+	NewUsersToday            int    `json:"new_users_today"`            // 今日新增注册数
+	NewSubscriptionsToday    int    `json:"new_subscriptions_today"`    // 今日新增订阅数
 
 }
 

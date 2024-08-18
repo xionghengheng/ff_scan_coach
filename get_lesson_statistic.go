@@ -17,14 +17,14 @@ type GetLessonStatisticReq struct {
 type GetLessonStatisticRsp struct {
 	Code                      int    `json:"code"`
 	ErrorMsg                  string `json:"errorMsg,omitempty"`
-	TotalCoursePurchasers     int64  // 总购课用户数
-	TotalCoursePackages       int64  // 总购买课包数
-	TotalCoursePackageRevenue int64  // 总课包支付金额
-	TotalRedemptionAmount     int64  // 总核销金额
-	TotalClassesAttended      int64  // 总上课节数
-	NewCoursePurchasersToday  int64  // 今日新增购课用户数
-	TodayBookedClasses        int64  // 今日预约课程数
-	TodayCompletedClasses     int64  // 今日完成课程数
+	TotalCoursePurchasers     int64  `json:"total_course_purchasers"`      // 总购课用户数
+	TotalCoursePackages       int64  `json:"total_course_packages"`        // 总购买课包数
+	TotalCoursePackageRevenue int64  `json:"total_course_package_revenue"` // 总课包支付金额
+	TotalRedemptionAmount     int64  `json:"total_redemption_amount"`      // 总核销金额
+	TotalClassesAttended      int64  `json:"total_classes_attended"`       // 总上课节数
+	NewCoursePurchasersToday  int64  `json:"new_course_purchasers_today"`  // 今日新增购课用户数
+	TodayBookedClasses        int64  `json:"today_booked_classes"`         // 今日预约课程数
+	TodayCompletedClasses     int64  `json:"today_completed_classes"`      // 今日完成课程数
 
 }
 
@@ -92,7 +92,7 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 			rsp.TotalCoursePackages += 1
 			mapPayPackageUser[v.Uid] = true
 			rsp.TotalCoursePackageRevenue += int64(v.Price)
-			if v.Ts > dayBegTs{
+			if v.Ts > dayBegTs {
 				rsp.NewCoursePurchasersToday += 1
 			}
 		}
@@ -100,5 +100,32 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	rsp.TotalCoursePurchasers = int64(len(mapPayPackageUser))
 	rsp.TotalRedemptionAmount = 1
 
+	var vecAllSingleLesson []model.CoursePackageSingleLessonModel
+	turnPageTs = 0
+	for i := 0; i <= 5000; i++ {
+		tmpVecAllSingleLesson, err := dao.ImpCoursePackageSingleLesson.GetAllSingleLessonList(turnPageTs)
+		if err != nil {
+			rsp.Code = -911
+			rsp.ErrorMsg = err.Error()
+			Printf("GetAllSingleLessonList err, strOpenId:%s StatisticTs:%d err:%+v\n", req.StatisticTs, err)
+			return
+		}
+		if len(tmpVecAllSingleLesson) == 0 {
+			Printf("GetAllSingleLessonList empty, StatisticTs:%d vecAllSingleLesson.len:%d\n", req.StatisticTs, len(vecAllSingleLesson))
+			break
+		}
+		turnPageTs = tmpVecAllSingleLesson[len(tmpVecAllSingleLesson)-1].CreateTs
+		vecAllSingleLesson = append(vecAllSingleLesson, tmpVecAllSingleLesson...)
+	}
+
+	for _, v := range vecAllSingleLesson {
+		if v.ScheduleBegTs > dayBegTs {
+			if v.Status == model.En_LessonStatusCompleted {
+				rsp.TodayCompletedClasses += 1
+			} else {
+				rsp.TodayBookedClasses += 1
+			}
+		}
+	}
 	return
 }
