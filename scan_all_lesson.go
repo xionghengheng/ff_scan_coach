@@ -1,10 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
-	"fmt"
 	"time"
 )
 
@@ -122,7 +122,7 @@ func handleSendMsg() {
 					"thing1": {Value: stCourseModel.Name},            //课程名称
 					"date2":  {Value: t.Format("2006年01月02日 15:04")}, //上课时间
 					"thing3": {Value: stGymInfoModel.LocName},        //上课地点
-					"thing4": {Value: "课程还有1小时开始了，出发前往场地热身吧"},        //温馨提示
+					"thing4": {Value: "课程即将开始，可以动身前往场地提前热身了"},        //温馨提示
 				},
 			}
 			err = comm.SendMsg2User(v.Uid, stWxSendMsg2UserReq)
