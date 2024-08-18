@@ -70,7 +70,7 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		rsp.Code = -922
 		rsp.ErrorMsg = err.Error()
-		Printf("GetAllUser err, strOpenId:%s StatisticTs:%d err:%+v\n", strOpenId, req.StatisticTs, err)
+		Printf("GetAllUser err, StatisticTs:%d err:%+v\n", req.StatisticTs, err)
 		return
 	}
 	for _, v := range vecAllUserModel {

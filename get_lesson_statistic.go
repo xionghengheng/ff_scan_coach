@@ -75,7 +75,7 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			rsp.Code = -911
 			rsp.ErrorMsg = err.Error()
-			Printf("GetAllCoursePackageList err, strOpenId:%s StatisticTs:%d err:%+v\n", req.StatisticTs, err)
+			Printf("GetAllCoursePackageList err, StatisticTs:%d err:%+v\n", req.StatisticTs, err)
 			return
 		}
 		if len(tmpVecAllUserModel) == 0 {
@@ -107,7 +107,7 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			rsp.Code = -911
 			rsp.ErrorMsg = err.Error()
-			Printf("GetAllSingleLessonList err, strOpenId:%s StatisticTs:%d err:%+v\n", req.StatisticTs, err)
+			Printf("GetAllSingleLessonList err, StatisticTs:%d err:%+v\n", req.StatisticTs, err)
 			return
 		}
 		if len(tmpVecAllSingleLesson) == 0 {
