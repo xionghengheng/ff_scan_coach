@@ -119,7 +119,9 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range vecAllSingleLesson {
-		rsp.TotalClassesAttended += 1
+		if v.Status == model.En_LessonStatusCompleted{
+			rsp.TotalClassesAttended += 1
+		}
 		if v.ScheduleBegTs > dayBegTs {
 			if v.Status == model.En_LessonStatusCompleted {
 				rsp.TodayCompletedClasses += 1
