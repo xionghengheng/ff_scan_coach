@@ -8,5 +8,5 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/xionghengheng/ff_plib v0.0.0-20240818100842-ff16b638d859 // indirect
+	github.com/xionghengheng/ff_plib v0.0.0-20240818114006-08b0e171de8d // indirect
 )

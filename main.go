@@ -17,8 +17,9 @@ func main() {
 
 	autoScanAllCoursePackageSingleLesson()
 
-	//测试接口，清空用户信息
 	http.HandleFunc("/api/getUserStatistic", GetUserStatiticHandler)
+
+	http.HandleFunc("/api/getLessonStatistic", GetLessonStatiticHandler)
 
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
