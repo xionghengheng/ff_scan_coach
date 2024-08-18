@@ -43,7 +43,3 @@ func autoScanAllCoursePackageSingleLesson() {
 	}()
 }
 
-// ForTestHandler
-func ForTestHandler(w http.ResponseWriter, r *http.Request) {
-	return
-}

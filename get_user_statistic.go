@@ -11,18 +11,18 @@ import (
 )
 
 type GetUserStatisticReq struct {
-	StatisticTs int64
+	StatisticTs int64 `json:"statistic_ts"`
 }
 
 type GetUserStatiticRsp struct {
-	Code                     int     `json:"code"`
-	ErrorMsg                 string  `json:"errorMsg,omitempty"`
-	TotalUsers               int     // 总注册人数
-	TotalSubscriptions       int     // 总订阅数
-	TotalSubscriptionRevenue int     // 订阅支付总金额
-	UnsubscribedUsers        int     // 注册但未订阅用户数
-	NewUsersToday            int     // 今日新增注册数
-	NewSubscriptionsToday    int     // 今日新增订阅数
+	Code                     int    `json:"code"`
+	ErrorMsg                 string `json:"errorMsg,omitempty"`
+	TotalUsers               int    // 总注册人数
+	TotalSubscriptions       int    // 总订阅数
+	TotalSubscriptionRevenue int    // 订阅支付总金额
+	UnsubscribedUsers        int    // 注册但未订阅用户数
+	NewUsersToday            int    // 今日新增注册数
+	NewSubscriptionsToday    int    // 今日新增订阅数
 
 }
 
@@ -79,20 +79,19 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 			rsp.TotalUsers += 1
 		}
 
-		if v.BeVipTs > 0{
+		if v.BeVipTs > 0 {
 			rsp.TotalSubscriptions += 1
 		}
 
-		if v.VipType == model.Enum_VipType_PaidYear{
+		if v.VipType == model.Enum_VipType_PaidYear {
 			rsp.TotalSubscriptionRevenue += 299
 		}
-
 
 		if v.RegistTs >= dayBegTs {
 			rsp.NewUsersToday += 1
 		}
 
-		if v.RegistTs >= dayBegTs && v.BeVipTs > 0{
+		if v.RegistTs >= dayBegTs && v.BeVipTs > 0 {
 			rsp.NewSubscriptionsToday += 1
 		}
 	}
