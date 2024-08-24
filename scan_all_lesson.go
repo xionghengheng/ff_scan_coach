@@ -112,6 +112,7 @@ func handleSendMsg() {
 			stCourseModel, err := dao.ImpCourse.GetCourseById(v.CourseID)
 			stUserModel, err := dao.ImpUser.GetUser(v.Uid)
 			t := time.Unix(v.ScheduleBegTs, 0)
+			tEnd := time.Unix(v.ScheduleEndTs, 0)
 			stWxSendMsg2UserReq := comm.WxSendMsg2UserReq{
 				ToUser:           stUserModel.WechatID,
 				TemplateID:       "kENL0EQdSD5gvtUAPh58n923AwBEio7tec6e1bC2sb0",
@@ -132,6 +133,20 @@ func handleSendMsg() {
 				Printf("sendMsg2User succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
 			}
 			Printf("UpdateSingleLesson2StatusSendMsg succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
+
+			//排课成功短信通知
+			if stUserModel.PhoneNumber != nil{
+				var vecTemplateParam []string
+				vecTemplateParam = append(vecTemplateParam, "1")
+				vecTemplateParam = append(vecTemplateParam, t.Format("15:04"))
+				vecTemplateParam = append(vecTemplateParam, tEnd.Format("15:04"))
+				err := comm.SendSmsMsg2User("2247162", stUserModel.UserID, vecTemplateParam, *stUserModel.PhoneNumber)
+				if err != nil{
+					Printf("SendSmsMsg2User err, err:%+v traineeUid:%d PackageID:%s LessonID:%s", err, stUserModel.UserID, v.PackageID, v.LessonID)
+				}else{
+					Printf("SendSmsMsg2User succ, traineeUid:%d PackageID:%s LessonID:%s", stUserModel.UserID, v.PackageID, v.LessonID)
+				}
+			}
 		}
 	}
 	return
