@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
+	"strconv"
 	"time"
 )
 
@@ -110,13 +110,14 @@ func handleSendMsg() {
 			//模板配置链接：https://mp.weixin.qq.com/wxamp/newtmpl/tmpldetail?type=2&pri_tmpl_id=kENL0EQdSD5gvtUAPh58n923AwBEio7tec6e1bC2sb0&flag=undefined&token=1034864027&lang=zh_CN
 			stGymInfoModel, err := dao.ImpGym.GetGymInfoByGymId(v.GymId)
 			stCourseModel, err := dao.ImpCourse.GetCourseById(v.CourseID)
+			stCoachModel, err := dao.ImpCoach.GetCoachById(v.CoachId)
 			stUserModel, err := dao.ImpUser.GetUser(v.Uid)
 			t := time.Unix(v.ScheduleBegTs, 0)
 			tEnd := time.Unix(v.ScheduleEndTs, 0)
 			stWxSendMsg2UserReq := comm.WxSendMsg2UserReq{
 				ToUser:           stUserModel.WechatID,
 				TemplateID:       "kENL0EQdSD5gvtUAPh58n923AwBEio7tec6e1bC2sb0",
-				Page:             fmt.Sprintf("pages/course/order-info-detail/index?lesson_id=%s", v.LessonID),
+				Page:             "pages/home/index/index",
 				MiniprogramState: "trial",
 				Lang:             "zh_CN",
 				Data: map[string]comm.MsgDataField{
@@ -136,11 +137,15 @@ func handleSendMsg() {
 
 			//排课成功短信通知
 			if stUserModel.PhoneNumber != nil{
+				//您预约的{1}月{2}日{3}~{4}课程即将开始，场地：{5}，授课教练：{6}，现在可以前往场地热身了哦！
 				var vecTemplateParam []string
-				vecTemplateParam = append(vecTemplateParam, "1")
+				vecTemplateParam = append(vecTemplateParam, strconv.Itoa(int(t.Month())))
+				vecTemplateParam = append(vecTemplateParam, strconv.Itoa(t.Day()))
 				vecTemplateParam = append(vecTemplateParam, t.Format("15:04"))
 				vecTemplateParam = append(vecTemplateParam, tEnd.Format("15:04"))
-				err := comm.SendSmsMsg2User("2247162", stUserModel.UserID, vecTemplateParam, *stUserModel.PhoneNumber)
+				vecTemplateParam = append(vecTemplateParam, stGymInfoModel.LocName)
+				vecTemplateParam = append(vecTemplateParam, stCoachModel.CoachName)
+				err := comm.SendSmsMsg2User("2247549", stUserModel.UserID, vecTemplateParam, *stUserModel.PhoneNumber)
 				if err != nil{
 					Printf("SendSmsMsg2User err, err:%+v traineeUid:%d PackageID:%s LessonID:%s", err, stUserModel.UserID, v.PackageID, v.LessonID)
 				}else{
