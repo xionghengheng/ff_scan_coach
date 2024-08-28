@@ -135,7 +135,7 @@ func handleSendMsg() {
 			}
 			Printf("UpdateSingleLesson2StatusSendMsg succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
 
-			//排课成功短信通知
+			//开课前一小时，发送短信通知用户
 			if stUserModel.PhoneNumber != nil{
 				//您预约的{1}月{2}日{3}~{4}课程即将开始，场地：{5}，授课教练：{6}，现在可以前往场地热身了哦！
 				var vecTemplateParam []string
