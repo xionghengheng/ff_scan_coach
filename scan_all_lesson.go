@@ -147,9 +147,9 @@ func handleSendMsg() {
 				vecTemplateParam = append(vecTemplateParam, stCoachModel.CoachName)
 				err := comm.SendSmsMsg2User("2247549", stUserModel.UserID, vecTemplateParam, *stUserModel.PhoneNumber)
 				if err != nil{
-					Printf("SendSmsMsg2User err, err:%+v traineeUid:%d PackageID:%s LessonID:%s", err, stUserModel.UserID, v.PackageID, v.LessonID)
+					Printf("SendSmsMsg2User err, err:%+v traineeUid:%d PackageID:%s LessonID:%s vecTemplateParam:%+v", err, stUserModel.UserID, v.PackageID, v.LessonID, vecTemplateParam)
 				}else{
-					Printf("SendSmsMsg2User succ, traineeUid:%d PackageID:%s LessonID:%s", stUserModel.UserID, v.PackageID, v.LessonID)
+					Printf("SendSmsMsg2User succ, traineeUid:%d PackageID:%s LessonID:%s vecTemplateParam:%+v", stUserModel.UserID, v.PackageID, v.LessonID, vecTemplateParam)
 				}
 			}
 		}
