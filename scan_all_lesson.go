@@ -143,7 +143,7 @@ func handleSendMsg() {
 				vecTemplateParam = append(vecTemplateParam, strconv.Itoa(t.Day()))
 				vecTemplateParam = append(vecTemplateParam, t.Format("15:04"))
 				vecTemplateParam = append(vecTemplateParam, tEnd.Format("15:04"))
-				vecTemplateParam = append(vecTemplateParam, stGymInfoModel.LocName)
+				vecTemplateParam = append(vecTemplateParam, stGymInfoModel.LocSimpleName)
 				vecTemplateParam = append(vecTemplateParam, stCoachModel.CoachName)
 				err := comm.SendSmsMsg2User("2247549", stUserModel.UserID, vecTemplateParam, *stUserModel.PhoneNumber)
 				if err != nil{
