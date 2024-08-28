@@ -29,6 +29,8 @@ github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.991 h1:0Xg2
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.991/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.923 h1:i6GEksTvzTB5Aa3pMW4QHoi9nd9VFTQCvLsc4kz52tE=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.923/go.mod h1:q/9H6vu3wtRuPpheocsE7sAQHqWyMxLIAz6GQdMrMeI=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.991 h1:gj16ALD+Og/WN4cJ7rTuUHtkvShwC1xNrqSEnbqWnho=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.991/go.mod h1:NiNb9NvBlvawBGWivb7U9h4fMuyVLcy/kTde2X3wu7I=
 github.com/xionghengheng/ff_plib v0.0.0-20240718155159-23990d32ee73 h1:6LvMao+D1LnJc/wscnmImmYip4X1ARdx+IbhU8Kv1jM=
 github.com/xionghengheng/ff_plib v0.0.0-20240718155159-23990d32ee73/go.mod h1:w51t5V5b9cDvK5hMpkjMUPFcKxDH9H1NTSrKwtNaIJQ=
 github.com/xionghengheng/ff_plib v0.0.0-20240719141209-35d9879083b9 h1:Ap4Rf8LFUbsKtjZW3yJqURVVERot4mNBGKBPq31LXKs=
