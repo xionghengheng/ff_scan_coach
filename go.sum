@@ -25,6 +25,8 @@ github.com/mattn/go-sqlite3 v1.14.0 h1:mLyGNKR8+Vv9CAU7PphKa2hkEqxxhn8i32J6FPj1/
 github.com/mattn/go-sqlite3 v1.14.0/go.mod h1:JIl7NbARA7phWnGvh0LKTyg7S9BA+6gx71ShQilpsus=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.923 h1:H1IQXQ8k1JvtCKBBxC9Q3FR9hflDdjedmlhgbC4i/+o=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.923/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.991 h1:0Xg2IUktDgGsjBv82WTmTQdHZFRwS2XDUnuOHexCxVw=
+github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.991/go.mod h1:r5r4xbfxSaeR04b166HGsBa/R4U3SueirEUpXGuw+Q0=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.923 h1:i6GEksTvzTB5Aa3pMW4QHoi9nd9VFTQCvLsc4kz52tE=
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.923/go.mod h1:q/9H6vu3wtRuPpheocsE7sAQHqWyMxLIAz6GQdMrMeI=
 github.com/xionghengheng/ff_plib v0.0.0-20240718155159-23990d32ee73 h1:6LvMao+D1LnJc/wscnmImmYip4X1ARdx+IbhU8Kv1jM=
