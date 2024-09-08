@@ -15,8 +15,10 @@ type GetUserStatisticReq struct {
 }
 
 type UserStatisticInfo struct {
-	Nick                    string `json:"nick,omitempty"`            //昵称
+	//用户基础信息
+	RegistTs                string `json:"regist_ts"`                 //用户注册时间
 	UserID                  int64  `json:"user_id"`                   //用户uid
+	Nick                    string `json:"nick,omitempty"`            //昵称
 	PhoneNumber             string `json:"phone_number"`              //手机号
 	WechatOpenId            string `json:"wechat_openid"`             //微信openid
 	HeadPic                 string `json:"head_pic"`                  //头像
@@ -32,14 +34,15 @@ type UserStatisticInfo struct {
 	WeeklyExerciseFrequency string `json:"weekly_exercise_frequency"` //每周运动次数
 	PreferredPriceRange     string `json:"preferred_price_range"`     //偏好价格档位
 	PreferredLocationID     int    `json:"preferred_location_id"`     //偏好健身房场地ID
-	VipType                 string `json:"vip_type"`                  //vip订阅类型 0=非会员 1=体验会员 2=付费年费会员
-	VipExpiredTs            string `json:"vip_expired_ts"`            //vip过期时间
-	RegistTs                string `json:"regist_ts"`                 //用户注册时间
-	BeVipTs                 string `json:"be_vip_ts"`                 //付费成为订阅会员的时间
-	TrialPackageReaminCnt   int    `json:"trial_package_reamin_cnt"`  //体验课，剩余课时数
-	TrialPackageLevel       string `json:"trial_package_level"`       //体验课，档位
-	TrialCoachId            int    `json:"trial_coach_id"`            //体验课，教练
-	BuyPackage              bool   `json:"buy_package"`               //是否买了正式课
+
+	//订阅信息
+	VipType               string `json:"vip_type"`                 //vip订阅类型 0=非会员 1=体验会员（企业合作激活） 2=付费年费会员
+	VipExpiredTs          string `json:"vip_expired_ts"`           //vip过期时间
+	BeVipTs               string `json:"be_vip_ts"`                //成为订阅会员的时间
+	TrialPackageReaminCnt int    `json:"trial_package_reamin_cnt"` //体验课，剩余课时数
+	TrialPackageLevel     string `json:"trial_package_level"`      //体验课，档位
+	TrialCoachId          int    `json:"trial_coach_id"`           //体验课，教练
+	BuyPackage            bool   `json:"buy_package"`              //是否买了正式课
 }
 
 type GetUserStatiticRsp struct {
@@ -221,19 +224,19 @@ func convertUser2SUser(user model.UserInfoModel) UserStatisticInfo {
 	if user.VipType == 0 {
 		rsp.VipType = "非会员"
 	} else if user.VipType == 1 {
-		rsp.VipType = "体验会员"
+		rsp.VipType = "体验会员（企业合作激活）"
 	} else {
 		rsp.VipType = "付费年费会员"
 	}
 
 	t := time.Unix(user.VipExpiredTs, 0)
-	rsp.VipExpiredTs = t.Format("2006年01月02日 15:04")
+	rsp.VipExpiredTs = "VIP过期时间 " + t.Format("2006年01月02日 15:04")
 
 	t = time.Unix(user.RegistTs, 0)
-	rsp.RegistTs = t.Format("2006年01月02日 15:04")
+	rsp.RegistTs = "注册时间 " + t.Format("2006年01月02日 15:04")
 
 	t = time.Unix(user.BeVipTs, 0)
-	rsp.BeVipTs = t.Format("2006年01月02日 15:04")
+	rsp.BeVipTs = "成为订阅会员的时间 " + t.Format("2006年01月02日 15:04")
 
 	return rsp
 }
