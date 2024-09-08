@@ -39,6 +39,7 @@ type UserStatisticInfo struct {
 	VipType               string `json:"vip_type"`                 //vip订阅类型 0=非会员 1=体验会员（企业合作激活） 2=付费年费会员
 	VipExpiredTs          string `json:"vip_expired_ts"`           //vip过期时间
 	BeVipTs               string `json:"be_vip_ts"`                //成为订阅会员的时间
+	PayVipOrderId         string `json:"pay_vip_order_id"`         //付费购买年费vip的订单号
 	TrialPackageReaminCnt int    `json:"trial_package_reamin_cnt"` //体验课，剩余课时数
 	TrialPackageLevel     string `json:"trial_package_level"`      //体验课，档位
 	TrialCoachId          int    `json:"trial_coach_id"`           //体验课，教练
@@ -140,6 +141,7 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			continue
 		}
+
 		rspItem := convertUser2SUser(v)
 		rspItem.TrialPackageReaminCnt = stTrailCoursePackage.RemainCnt
 		if stTrailCoursePackage.CourseId == 4 {
@@ -154,6 +156,14 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 			rspItem.BuyPackage = true
 		} else {
 			rspItem.BuyPackage = false
+		}
+
+		vecPaymentOrderModel, err := dao.ImpPaymentOrder.GetOrderList(v.UserID)
+		for _,order := range vecPaymentOrderModel{
+			if order.PurchaseType == 1 || order.PurchaseType == 2{
+				rspItem.PayVipOrderId = order.OrderID
+				break
+			}
 		}
 		rsp.UserStatisticInfoList = append(rsp.UserStatisticInfoList, rspItem)
 	}
