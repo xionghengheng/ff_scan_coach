@@ -24,13 +24,13 @@ type UserStatisticInfo struct {
 	Age                     int    `json:"age"`                       //年龄
 	Weight                  int    `json:"weight"`                    //体重
 	Height                  int    `json:"height"`                    //身高
-	FitnessExperience       int    `json:"fitness_experience"`        //健身经验
-	FitnessGoal             int    `json:"fitness_goal"`              //健身目标
+	FitnessExperience       string `json:"fitness_experience"`        //健身经验
+	FitnessGoal             string `json:"fitness_goal"`              //健身目标
 	DesiredWeight           int    `json:"desired_weight"`            //期望体重
-	TimeFrame               int    `json:"time_frame"`                //期望多快达到
+	TimeFrame               string `json:"time_frame"`                //期望多快达到
 	PreferredBodyPart       string `json:"preferred_body_part"`       //最期望增强部位
-	WeeklyExerciseFrequency int    `json:"weekly_exercise_frequency"` //每周运动次数
-	PreferredPriceRange     int    `json:"preferred_price_range"`     //偏好价格档位
+	WeeklyExerciseFrequency string `json:"weekly_exercise_frequency"` //每周运动次数
+	PreferredPriceRange     string `json:"preferred_price_range"`     //偏好价格档位
 	PreferredLocationID     int    `json:"preferred_location_id"`     //偏好健身房场地ID
 	VipType                 string `json:"vip_type"`                  //vip订阅类型 0=非会员 1=体验会员 2=付费年费会员
 	VipExpiredTs            string `json:"vip_expired_ts"`            //vip过期时间
@@ -174,13 +174,48 @@ func convertUser2SUser(user model.UserInfoModel) UserStatisticInfo {
 	rsp.Age = user.Age
 	rsp.Weight = user.Weight
 	rsp.Height = user.Height
-	rsp.FitnessExperience = user.FitnessExperience
-	rsp.FitnessGoal = user.FitnessGoal
+	if user.FitnessExperience == 1 {
+		rsp.FitnessExperience = "健身经验初级"
+	} else if user.FitnessExperience == 2 {
+		rsp.FitnessExperience = "健身经验中级"
+	} else {
+		rsp.FitnessExperience = "健身经验高级"
+	}
+
+	if user.FitnessGoal == 1 {
+		rsp.FitnessGoal = "健身目标是减脂减重"
+	} else if user.FitnessGoal == 2 {
+		rsp.FitnessGoal = "健身目标是增肌增重"
+	} else {
+		rsp.FitnessGoal = "健身目标是塑型体态"
+	}
+
+	if user.TimeFrame == 1 {
+		rsp.TimeFrame = "期望多快达到，慢一点但稳定"
+	} else if user.TimeFrame == 2 {
+		rsp.TimeFrame = "期望多快达到，正常速度"
+	} else {
+		rsp.TimeFrame = "期望多快达到，越快真好"
+	}
+
+	if user.WeeklyExerciseFrequency == 1 {
+		rsp.WeeklyExerciseFrequency = "每周1~2次"
+	} else if user.WeeklyExerciseFrequency == 2 {
+		rsp.WeeklyExerciseFrequency = "每周3~4次"
+	} else {
+		rsp.WeeklyExerciseFrequency = "每周5~7次"
+	}
+
+	if user.PreferredPriceRange == 4 {
+		rsp.PreferredPriceRange = "偏好价格档位，基础"
+	} else if user.PreferredPriceRange == 5 {
+		rsp.PreferredPriceRange = "偏好价格档位，中级"
+	} else {
+		rsp.PreferredPriceRange = "偏好价格档位，高级"
+	}
+
 	rsp.DesiredWeight = user.DesiredWeight
-	rsp.TimeFrame = user.TimeFrame
 	rsp.PreferredBodyPart = user.PreferredBodyPart
-	rsp.WeeklyExerciseFrequency = user.WeeklyExerciseFrequency
-	rsp.PreferredPriceRange = user.PreferredPriceRange
 	rsp.PreferredLocationID = user.PreferredLocationID
 
 	if user.VipType == 0 {
