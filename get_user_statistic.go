@@ -11,14 +11,14 @@ import (
 )
 
 type GetUserStatisticReq struct {
-	StatisticTs string `json:"statistic_ts"`
+	StatisticTs string `json:"statistic_ts"` //统计时间，比如20240908
 }
 
 type UserStatisticInfo struct {
-	UserID                  int64  `json:"user_id"`                   //用户uid
-	WechatID                string `json:"wechat_id"`                 //微信openid
-	PhoneNumber             string `json:"phone_number"`              //手机号
 	Nick                    string `json:"nick,omitempty"`            //昵称
+	UserID                  int64  `json:"user_id"`                   //用户uid
+	PhoneNumber             string `json:"phone_number"`              //手机号
+	WechatOpenId            string `json:"wechat_openid"`             //微信openid
 	HeadPic                 string `json:"head_pic"`                  //头像
 	Gender                  string `json:"gender"`                    //"0=男", "1=女", "2=other"
 	Age                     int    `json:"age"`                       //年龄
@@ -160,7 +160,7 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 func convertUser2SUser(user model.UserInfoModel) UserStatisticInfo {
 	var rsp UserStatisticInfo
 	rsp.UserID = user.UserID
-	rsp.WechatID = user.WechatID
+	rsp.WechatOpenId = user.WechatID
 	if user.PhoneNumber != nil {
 		rsp.PhoneNumber = *user.PhoneNumber
 	}
