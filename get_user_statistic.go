@@ -20,7 +20,7 @@ type UserStatisticInfo struct {
 	PhoneNumber             string `json:"phone_number"`              //手机号
 	Nick                    string `json:"nick,omitempty"`            //昵称
 	HeadPic                 string `json:"head_pic"`                  //头像
-	Gender                  int    `json:"gender"`                    //"0=男", "1=女", "2=other"
+	Gender                  string `json:"gender"`                    //"0=男", "1=女", "2=other"
 	Age                     int    `json:"age"`                       //年龄
 	Weight                  int    `json:"weight"`                    //体重
 	Height                  int    `json:"height"`                    //身高
@@ -32,14 +32,14 @@ type UserStatisticInfo struct {
 	WeeklyExerciseFrequency int    `json:"weekly_exercise_frequency"` //每周运动次数
 	PreferredPriceRange     int    `json:"preferred_price_range"`     //偏好价格档位
 	PreferredLocationID     int    `json:"preferred_location_id"`     //偏好健身房场地ID
-	VipType                 int    `json:"vip_type"`                  //vip订阅类型 0=非会员 1=体验会员 2=付费年费会员
+	VipType                 string `json:"vip_type"`                  //vip订阅类型 0=非会员 1=体验会员 2=付费年费会员
 	VipExpiredTs            string `json:"vip_expired_ts"`            //vip过期时间
 	RegistTs                string `json:"regist_ts"`                 //用户注册时间
 	BeVipTs                 string `json:"be_vip_ts"`                 //付费成为订阅会员的时间
-	TrialPackageReaminCnt   int    `json:"trial_package_reamin_cnt"`  // 体验课，剩余课时数
-	TrialPackageLevel       string `json:"trial_package_level"`       // 体验课，档位
-	TrialCoachId            int    `json:"trial_coach_id"`            // 体验课，教练
-	BuyPackage              bool   `json:"buy_package"`               // 是否买了正式课
+	TrialPackageReaminCnt   int    `json:"trial_package_reamin_cnt"`  //体验课，剩余课时数
+	TrialPackageLevel       string `json:"trial_package_level"`       //体验课，档位
+	TrialCoachId            int    `json:"trial_coach_id"`            //体验课，教练
+	BuyPackage              bool   `json:"buy_package"`               //是否买了正式课
 }
 
 type GetUserStatiticRsp struct {
@@ -139,17 +139,17 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		rspItem := convertUser2SUser(v)
 		rspItem.TrialPackageReaminCnt = stTrailCoursePackage.RemainCnt
-		if stTrailCoursePackage.CourseId == 4{
+		if stTrailCoursePackage.CourseId == 4 {
 			rspItem.TrialPackageLevel = "基础体验课"
-		} else if stTrailCoursePackage.CourseId == 5{
+		} else if stTrailCoursePackage.CourseId == 5 {
 			rspItem.TrialPackageLevel = "中级体验课"
-		} else if stTrailCoursePackage.CourseId == 6{
+		} else if stTrailCoursePackage.CourseId == 6 {
 			rspItem.TrialPackageLevel = "高级体验课"
 		}
 		rspItem.TrialCoachId = stTrailCoursePackage.CoachId
-		if len(vecPayCoursePackageModel) > 0{
+		if len(vecPayCoursePackageModel) > 0 {
 			rspItem.BuyPackage = true
-		}else{
+		} else {
 			rspItem.BuyPackage = false
 		}
 		rsp.UserStatisticInfoList = append(rsp.UserStatisticInfoList, rspItem)
@@ -166,7 +166,11 @@ func convertUser2SUser(user model.UserInfoModel) UserStatisticInfo {
 	}
 	rsp.Nick = user.Nick
 	rsp.HeadPic = user.HeadPic
-	rsp.Gender = user.Gender
+	if user.Gender == 0 {
+		rsp.Gender = "男"
+	} else {
+		rsp.Gender = "女"
+	}
 	rsp.Age = user.Age
 	rsp.Weight = user.Weight
 	rsp.Height = user.Height
@@ -178,7 +182,14 @@ func convertUser2SUser(user model.UserInfoModel) UserStatisticInfo {
 	rsp.WeeklyExerciseFrequency = user.WeeklyExerciseFrequency
 	rsp.PreferredPriceRange = user.PreferredPriceRange
 	rsp.PreferredLocationID = user.PreferredLocationID
-	rsp.VipType = user.VipType
+
+	if user.VipType == 0 {
+		rsp.VipType = "非会员"
+	} else if user.VipType == 1 {
+		rsp.VipType = "体验会员"
+	} else {
+		rsp.VipType = "付费年费会员"
+	}
 
 	t := time.Unix(user.VipExpiredTs, 0)
 	rsp.VipExpiredTs = t.Format("2006年01月02日 15:04")
