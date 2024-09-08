@@ -188,27 +188,27 @@ func convertUser2SUser(user model.UserInfoModel) UserStatisticInfo {
 	rsp.Weight = user.Weight
 	rsp.Height = user.Height
 	if user.FitnessExperience == 1 {
-		rsp.FitnessExperience = "健身经验初级"
+		rsp.FitnessExperience = "健身经验-初级"
 	} else if user.FitnessExperience == 2 {
-		rsp.FitnessExperience = "健身经验中级"
+		rsp.FitnessExperience = "健身经验-中级"
 	} else {
-		rsp.FitnessExperience = "健身经验高级"
+		rsp.FitnessExperience = "健身经验-高级"
 	}
 
 	if user.FitnessGoal == 1 {
-		rsp.FitnessGoal = "健身目标是减脂减重"
+		rsp.FitnessGoal = "健身目标-减脂减重"
 	} else if user.FitnessGoal == 2 {
-		rsp.FitnessGoal = "健身目标是增肌增重"
+		rsp.FitnessGoal = "健身目标-增肌增重"
 	} else {
-		rsp.FitnessGoal = "健身目标是塑型体态"
+		rsp.FitnessGoal = "健身目标-塑型体态"
 	}
 
 	if user.TimeFrame == 1 {
-		rsp.TimeFrame = "期望多快达到，慢一点但稳定"
+		rsp.TimeFrame = "期望多快达到-慢一点但稳定"
 	} else if user.TimeFrame == 2 {
-		rsp.TimeFrame = "期望多快达到，正常速度"
+		rsp.TimeFrame = "期望多快达到-正常速度"
 	} else {
-		rsp.TimeFrame = "期望多快达到，越快真好"
+		rsp.TimeFrame = "期望多快达到-越快真好"
 	}
 
 	if user.WeeklyExerciseFrequency == 1 {
@@ -220,11 +220,11 @@ func convertUser2SUser(user model.UserInfoModel) UserStatisticInfo {
 	}
 
 	if user.PreferredPriceRange == 4 {
-		rsp.PreferredPriceRange = "偏好价格档位，基础"
+		rsp.PreferredPriceRange = "偏好价格档位-基础"
 	} else if user.PreferredPriceRange == 5 {
-		rsp.PreferredPriceRange = "偏好价格档位，中级"
+		rsp.PreferredPriceRange = "偏好价格档位-中级"
 	} else {
-		rsp.PreferredPriceRange = "偏好价格档位，高级"
+		rsp.PreferredPriceRange = "偏好价格档位-高级"
 	}
 
 	rsp.DesiredWeight = user.DesiredWeight
