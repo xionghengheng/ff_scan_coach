@@ -180,6 +180,9 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 
 	//表单字段统计
 	for _, v := range vecAllPackageModel {
+		if v.Ts < dayBegTs {
+			continue
+		}
 		var stPackageStatisticItem PackageStatisticItem
 		var stPaymentOrderModel model.PaymentOrderModel
 		vecPaymentOrderModel, err := dao.ImpPaymentOrder.GetOrderByPackageId(v.Uid, v.PackageID)
