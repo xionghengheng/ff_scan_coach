@@ -42,7 +42,8 @@ type UserStatisticInfo struct {
 	PayVipOrderId         string `json:"pay_vip_order_id"`         //付费购买年费vip的订单号
 	TrialPackageReaminCnt int    `json:"trial_package_reamin_cnt"` //体验课，剩余课时数
 	TrialPackageLevel     string `json:"trial_package_level"`      //体验课，档位
-	TrialCoachId          int    `json:"trial_coach_id"`           //体验课，教练
+	TrialCoachId          int    `json:"trial_coach_id"`           //体验课，教练id
+	TrialCoachName        string `json:"trial_coach_name"`         //体验课，教练名称
 	BuyPackage            bool   `json:"buy_package"`              //是否买了正式课
 }
 
@@ -99,6 +100,14 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		dayBegTs = comm.GetTodayBegTsByTs(t.Unix())
 	}
 
+	mapCoachModel, err := comm.GetAllCoach()
+	if err != nil {
+		rsp.Code = -911
+		rsp.ErrorMsg = err.Error()
+		Printf("GetAllCoach err, StatisticTs:%d err:%+v\n", req.StatisticTs, err)
+		return
+	}
+
 	vecAllUserModel, err := dao.ImpUser.GetAllUser()
 	if err != nil {
 		rsp.Code = -922
@@ -152,6 +161,7 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 			rspItem.TrialPackageLevel = "高级体验课"
 		}
 		rspItem.TrialCoachId = stTrailCoursePackage.CoachId
+		rspItem.TrialCoachName = mapCoachModel[stTrailCoursePackage.CoachId].CoachName
 		if len(vecPayCoursePackageModel) > 0 {
 			rspItem.BuyPackage = true
 		} else {
@@ -159,8 +169,8 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		vecPaymentOrderModel, err := dao.ImpPaymentOrder.GetOrderList(v.UserID)
-		for _,order := range vecPaymentOrderModel{
-			if order.PurchaseType == 1 || order.PurchaseType == 2{
+		for _, order := range vecPaymentOrderModel {
+			if order.PurchaseType == 1 || order.PurchaseType == 2 {
 				rspItem.PayVipOrderId = order.OrderID
 				break
 			}
