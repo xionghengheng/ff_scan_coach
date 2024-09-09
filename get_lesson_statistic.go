@@ -29,6 +29,7 @@ type GetLessonStatisticRsp struct {
 	LessonStatisticItemList   []LessonStatisticItem  `json:"lesson_statistic_item_list"`
 }
 
+
 // 课包统计信息
 type PackageStatisticItem struct {
 	OrderTime         string `json:"order_time"`           // 订单时间
