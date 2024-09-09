@@ -14,7 +14,7 @@ type GetUserStatisticReq struct {
 	StatisticTs string `json:"statistic_ts"` //统计时间，比如20240908
 }
 
-type UserStatisticInfo struct {
+type UserStatisticItem struct {
 	//用户基础信息
 	RegistTs                string `json:"regist_ts"`                 //用户注册时间
 	UserID                  int64  `json:"user_id"`                   //用户uid
@@ -56,7 +56,7 @@ type GetUserStatiticRsp struct {
 	UnsubscribedUsers        int                 `json:"unsubscribed_users"`         // 注册但未订阅用户数
 	NewUsersToday            int                 `json:"new_users_today"`            // 今日新增注册数
 	NewSubscriptionsToday    int                 `json:"new_subscriptions_today"`    // 今日新增订阅数
-	UserStatisticInfoList    []UserStatisticInfo `json:"user_statistic_info_list"`   // 用户统计信息列表
+	UserStatisticItemList    []UserStatisticItem `json:"user_statistic_item_list"`   // 用户统计信息列表
 }
 
 func getGetUserStatisticReq(r *http.Request) (GetUserStatisticReq, error) {
@@ -175,13 +175,13 @@ func GetUserStatiticHandler(w http.ResponseWriter, r *http.Request) {
 				break
 			}
 		}
-		rsp.UserStatisticInfoList = append(rsp.UserStatisticInfoList, rspItem)
+		rsp.UserStatisticItemList = append(rsp.UserStatisticItemList, rspItem)
 	}
 	return
 }
 
-func convertUser2SUser(user model.UserInfoModel) UserStatisticInfo {
-	var rsp UserStatisticInfo
+func convertUser2SUser(user model.UserInfoModel) UserStatisticItem {
+	var rsp UserStatisticItem
 	rsp.UserID = user.UserID
 	rsp.WechatOpenId = user.WechatID
 	if user.PhoneNumber != nil {

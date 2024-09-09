@@ -11,20 +11,32 @@ import (
 )
 
 type GetLessonStatisticReq struct {
-	StatisticTs int64 `json:"statistic_ts"`
+	StatisticTs string `json:"statistic_ts"`
 }
 
 type GetLessonStatisticRsp struct {
-	Code                      int    `json:"code"`
-	ErrorMsg                  string `json:"errorMsg,omitempty"`
-	TotalCoursePurchasers     int64  `json:"total_course_purchasers"`      // 总购课用户数
-	TotalCoursePackages       int64  `json:"total_course_packages"`        // 总购买课包数
-	TotalCoursePackageRevenue int64  `json:"total_course_package_revenue"` // 总课包支付金额
-	TotalRedemptionAmount     int64  `json:"total_redemption_amount"`      // 总核销金额
-	TotalClassesAttended      int64  `json:"total_classes_attended"`       // 总上课节数
-	NewCoursePurchasersToday  int64  `json:"new_course_purchasers_today"`  // 今日新增购课用户数
-	TodayBookedClasses        int64  `json:"today_booked_classes"`         // 今日预约课程数
-	TodayCompletedClasses     int64  `json:"today_completed_classes"`      // 今日完成课程数
+	Code                      int                   `json:"code"`
+	ErrorMsg                  string                `json:"errorMsg,omitempty"`
+	TotalCoursePurchasers     int64                 `json:"total_course_purchasers"`      // 总购课用户数
+	TotalCoursePackages       int64                 `json:"total_course_packages"`        // 总购买课包数
+	TotalCoursePackageRevenue int64                 `json:"total_course_package_revenue"` // 总课包支付金额
+	TotalRedemptionAmount     int64                 `json:"total_redemption_amount"`      // 总核销金额
+	TotalClassesAttended      int64                 `json:"total_classes_attended"`       // 总上课节数
+	NewCoursePurchasersToday  int64                 `json:"new_course_purchasers_today"`  // 今日新增购课用户数
+	TodayBookedClasses        int64                 `json:"today_booked_classes"`         // 今日预约课程数
+	TodayCompletedClasses     int64                 `json:"today_completed_classes"`      // 今日完成课程数
+	LessonStatisticItemList   []LessonStatisticItem `json:"lesson_statistic_item_list"`
+}
+
+// CourseBooking 包含课程预约的信息
+type LessonStatisticItem struct {
+	BookingTime    string `json:"booking_time"`    // 预约时间
+	LessonID       string `json:"lesson_id"`       // 课程编号
+	LessonType     string `json:"lesson_type"`     // 正式课or体验课
+	LessonStatus   string `json:"lesson_status"`   // 课程状态
+	ScheduleBegTs  string `json:"schedule_beg_ts"` // 上课时间
+	WriteOffTs     string `json:"write_off_ts"`    // 核销时间
+	CommentContent string `json:"comment_content"` // 课程评价
 
 }
 
@@ -62,10 +74,11 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var dayBegTs int64
-	if req.StatisticTs == 0 {
+	if len(req.StatisticTs) == 0 {
 		dayBegTs = comm.GetTodayBegTsByTs(time.Now().Unix())
 	} else {
-		dayBegTs = comm.GetTodayBegTsByTs(req.StatisticTs)
+		t, _ := time.Parse("20060102", req.StatisticTs)
+		dayBegTs = comm.GetTodayBegTsByTs(t.Unix())
 	}
 
 	var vecAllUserModel []model.CoursePackageModel
@@ -125,7 +138,7 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range vecAllSingleLesson {
-		if v.Status == model.En_LessonStatusCompleted{
+		if v.Status == model.En_LessonStatusCompleted {
 			rsp.TotalClassesAttended += 1
 			rsp.TotalRedemptionAmount += int64(mapCourse[v.CourseID].Price)
 		}
@@ -136,6 +149,43 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 				rsp.TodayBookedClasses += 1
 			}
 		}
+	}
+
+	//表单字段统计
+	for _, v := range vecAllSingleLesson {
+		_, _, packageType := comm.ParseCoursePackageId(v.PackageID)
+		stCoachAppointmentModel, err := dao.ImpAppointment.GetAppointmentById(v.AppointmentID)
+		if err != nil {
+			Printf("GetAppointmentById err, err:%+v AppointmentID:%d\n", err, v.AppointmentID)
+		}
+		var stLessonStatisticItem LessonStatisticItem
+		if stCoachAppointmentModel != nil {
+			t := time.Unix(stCoachAppointmentModel.CreateTs, 0)
+			stLessonStatisticItem.BookingTime = "课程发起预约的时间 " + t.Format("2006年01月02日 15:04")
+		}
+
+		stLessonStatisticItem.LessonID = v.LessonID
+		if packageType == model.Enum_PackageType_PaidPackage {
+			stLessonStatisticItem.LessonType = "正式课"
+		} else {
+			stLessonStatisticItem.LessonType = "体验课"
+		}
+
+		if v.Status == model.En_LessonStatus_Scheduled {
+			stLessonStatisticItem.LessonStatus = "已预约"
+		} else if v.Status == model.En_LessonStatusCompleted {
+			stLessonStatisticItem.LessonStatus = "已完成"
+		} else if v.Status == model.En_LessonStatusCanceled {
+			stLessonStatisticItem.LessonStatus = "已取消"
+		} else if v.Status == model.En_LessonStatusMissed {
+			stLessonStatisticItem.LessonStatus = "已旷课"
+		}
+		t := time.Unix(v.ScheduleBegTs, 0)
+		stLessonStatisticItem.ScheduleBegTs = "课程开始时间 " + t.Format("2006年01月02日 15:04")
+		t = time.Unix(v.WriteOffTs, 0)
+		stLessonStatisticItem.WriteOffTs = "课程核销时间 " + t.Format("2006年01月02日 15:04")
+
+		stLessonStatisticItem.CommentContent = v.CommentContent
 	}
 	return
 }
