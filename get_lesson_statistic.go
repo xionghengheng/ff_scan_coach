@@ -31,18 +31,18 @@ type GetLessonStatisticRsp struct {
 
 // 课包统计信息
 type PackageStatisticItem struct {
-	OrderTime         string  `json:"order_time"`           // 订单时间
-	PackageOrderID    string  `json:"package_order_id"`     // 课包订单号
-	PackageName       string  `json:"package_name"`         // 课包名称
-	CoachName         string  `json:"coach_name"`           // 授课教练
-	GymName           string  `json:"gym_name"`             // 场地
-	UnitPrice         int     `json:"unit_price"`           // 课单价
-	TotalAmount       float64 `json:"total_amount"`         // 总金额
-	TotalLessonCnt    int     `json:"total_lesson_cnt"`     // 总课时
-	WriteOffLessonCnt int     `json:"write_off_lesson_cnt"` // 核销课程数
-	RemainCnt         int     `json:"remain_cnt"`           // 剩余课时
-	WriteOffAmount    int     `json:"write_off_amount"`     // 核销金额
-	LastLessonTime    string  `json:"last_class_time"`      // 上次上课时间
+	OrderTime         string `json:"order_time"`           // 订单时间
+	PackageOrderID    string `json:"package_order_id"`     // 课包订单号
+	PackageName       string `json:"package_name"`         // 课包名称
+	CoachName         string `json:"coach_name"`           // 授课教练
+	GymName           string `json:"gym_name"`             // 场地
+	UnitPrice         int    `json:"unit_price"`           // 课单价
+	TotalAmount       int    `json:"total_amount"`         // 总金额
+	TotalLessonCnt    int    `json:"total_lesson_cnt"`     // 总课时
+	WriteOffLessonCnt int    `json:"write_off_lesson_cnt"` // 核销课程数
+	RemainCnt         int    `json:"remain_cnt"`           // 剩余课时
+	WriteOffAmount    int    `json:"write_off_amount"`     // 核销金额
+	LastLessonTime    string `json:"last_class_time"`      // 上次上课时间
 }
 
 // 课程统计信息
@@ -181,21 +181,27 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	//表单字段统计
 	for _, v := range vecAllPackageModel {
 		var stPackageStatisticItem PackageStatisticItem
-		//stCoachAppointmentModel, err := dao.ImpPaymentOrder.GetOrderList(v.AppointmentID)
-		//if err != nil {
-		//	Printf("GetAppointmentById err, err:%+v AppointmentID:%d\n", err, v.AppointmentID)
-		//}
-
+		var stPaymentOrderModel model.PaymentOrderModel
+		vecPaymentOrderModel, err := dao.ImpPaymentOrder.GetOrderByPackageId(v.Uid, v.PackageID)
+		if err != nil {
+			Printf("GetOrderByPackageId err, err:%+v uid:%d packageid:%s\n", err, v.Uid, v.PackageID)
+		}
+		if len(vecPaymentOrderModel) > 0 {
+			stPaymentOrderModel = vecPaymentOrderModel[0]
+		}
+		t := time.Unix(stPaymentOrderModel.OrderTime, 0)
+		stPackageStatisticItem.OrderTime = "订单时间 " + t.Format("2006年01月02日 15:04")
+		stPackageStatisticItem.PackageOrderID = stPaymentOrderModel.OrderID
 		stPackageStatisticItem.GymName = mapGym[v.GymId].LocName
 		stPackageStatisticItem.CoachName = mapCoach[v.CoachId].CoachName
 		stPackageStatisticItem.PackageName = mapCourse[v.CourseId].Name
 		stPackageStatisticItem.UnitPrice = mapCourse[v.CourseId].Price
-		stPackageStatisticItem.TotalAmount = 1
+		stPackageStatisticItem.TotalAmount = stPaymentOrderModel.PaymentAmount
 		stPackageStatisticItem.TotalLessonCnt = v.TotalCnt
 		stPackageStatisticItem.RemainCnt = v.RemainCnt
 		stPackageStatisticItem.WriteOffLessonCnt = v.TotalCnt - v.RemainCnt
 		stPackageStatisticItem.WriteOffAmount = stPackageStatisticItem.WriteOffLessonCnt * stPackageStatisticItem.UnitPrice
-		t := time.Unix(v.LastLessonTs, 0)
+		t = time.Unix(v.LastLessonTs, 0)
 		stPackageStatisticItem.LastLessonTime = "上次上课时间 " + t.Format("2006年01月02日 15:04")
 
 		rsp.PackageStatisticItemList = append(rsp.PackageStatisticItemList, stPackageStatisticItem)
