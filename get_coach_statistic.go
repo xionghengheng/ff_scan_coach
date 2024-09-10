@@ -109,6 +109,7 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		stCoachStatisticItem.JoinTime = "教练入驻时间 " + t.Format("2006年01月02日 15:04")
 		stCoachStatisticItem.CoachID = v.CoachID
 		stCoachStatisticItem.CoachName = v.CoachName
+		stCoachStatisticItem.Phone = v.Phone
 		stCoachStatisticItem.GymID = v.GymID
 		stCoachStatisticItem.Bio = v.Bio
 		stCoachStatisticItem.RecReason = v.RecReason
