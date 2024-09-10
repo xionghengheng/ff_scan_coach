@@ -34,6 +34,8 @@ func main() {
 
 	mux.HandleFunc("/api/getLessonStatistic", GetLessonStatiticHandler)
 
+	mux.HandleFunc("/api/getCoachStatistic", GetCoachStatiticHandler)
+
 	mux.HandleFunc("/api/getUvPvStatistic", GetUvPvStatisticHandler)
 
 
