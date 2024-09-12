@@ -124,7 +124,7 @@ func handleSendMsg() {
 					"thing1": {Value: stCourseModel.Name},            //课程名称
 					"date2":  {Value: t.Format("2006年01月02日 15:04")}, //上课时间
 					"thing3": {Value: stGymInfoModel.LocName},        //上课地点
-					"thing4": {Value: "课程即将开始，可以动身前往场地提前热身了"},        //温馨提示
+					"thing4": {Value: "课程即将开始，现在可以前往场地热身了哦！"},        //温馨提示
 				},
 			}
 			err = comm.SendMsg2User(v.Uid, stWxSendMsg2UserReq)
