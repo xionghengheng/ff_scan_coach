@@ -18,11 +18,11 @@ type GetUvPvStatisticReq struct {
 
 type GetUvPvStatisticRsp struct {
 	Code     int    `json:"code"`
-	ErrorMsg string `json:"errorMsg,omitempty"`
-	PageUv   int64  `json:"page_uv,omitempty"`
-	PagePv   int64  `json:"page_pv,omitempty"`
-	ButtonUv int64  `json:"button_uv,omitempty"`
-	ButtonPv int64  `json:"button_pv,omitempty"`
+	ErrorMsg string `json:"errorMsg"`
+	PageUv   int64  `json:"page_uv"`
+	PagePv   int64  `json:"page_pv"`
+	ButtonUv int64  `json:"button_uv"`
+	ButtonPv int64  `json:"button_pv"`
 }
 
 func getGetUvPvStatisticReq(r *http.Request) (GetUvPvStatisticReq, error) {
