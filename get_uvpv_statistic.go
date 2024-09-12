@@ -67,7 +67,7 @@ func GetUvPvStatisticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if len(req.PageId) > 0{
-		vecReportData, err := dao.ImpReport.GetPageReport(req.PageId, dayBegTs)
+		vecReportData, err := dao.ImpReport.GetPageReport(req.PageId, dayBegTs, dayBegTs+86399)
 		if err != nil {
 			rsp.Code = -922
 			rsp.ErrorMsg = err.Error()
@@ -78,7 +78,7 @@ func GetUvPvStatisticHandler(w http.ResponseWriter, r *http.Request) {
 		rsp.PageUv = int64(len(removeDuplicates(vecReportData)))
 	}
 	if len(req.ButtondId) > 0{
-		vecReportData, err := dao.ImpReport.GetButtonReport(req.ButtondId, dayBegTs)
+		vecReportData, err := dao.ImpReport.GetButtonReport(req.ButtondId, dayBegTs, dayBegTs+86399)
 		if err != nil {
 			rsp.Code = -922
 			rsp.ErrorMsg = err.Error()
