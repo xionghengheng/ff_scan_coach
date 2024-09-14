@@ -41,8 +41,8 @@ type CoachStatisticItem struct {
 type StatisticCalcInfo struct {
 	TrailPackageUv              int              `json:"trail_package_uv"`                // 体验用户数
 	TrailPackageUidList         map[int64]string `json:"trail_package_uid_list"`          // 体验课课包用户数
-	TrailBookingCountUv         int              `json:"trail_booking_count_uv"`          // 体验约课人数
-	TrailBookingCountPv         int              `json:"trail_booking_count_pv"`          // 体验约课次数
+	TrailLessonBookingCountUv   int              `json:"trail_lesson_booking_count_uv"`   // 体验约课人数
+	TrailLessonBookingCountPv   int              `json:"trail_lesson_booking_count_pv"`   // 体验约课次数
 	TrailLessonWriteOffUv       int              `json:"trail_lesson_writeoff_uv"`        // 体验课核销人数
 	TrailLessonWriteOffPv       int              `json:"trail_lesson_writeoff_pv"`        // 体验课核销次数
 	PaidPackageUv               int              `json:"paid_package_uv"`                 // 正式课课包付费用户数
@@ -207,59 +207,51 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		vecAllSingleLesson = append(vecAllSingleLesson, tmpVecAllSingleLesson...)
 	}
 
-	//for _, v := range vecAllSingleLesson {
-	//	if v.Status == model.En_LessonStatusCompleted {
-	//		rsp.TotalClassesAttended += 1
-	//		rsp.TotalRedemptionAmount += int64(mapCourse[v.CourseID].Price)
-	//	}
-	//	if v.ScheduleBegTs > dayBegTs {
-	//		if v.Status == model.En_LessonStatusCompleted {
-	//			rsp.TodayCompletedClasses += 1
-	//		} else {
-	//			rsp.TodayBookedClasses += 1
-	//		}
-	//	}
-	//}
-	//
-	//for _, v := range vecAllSingleLesson {
-	//	if v.ScheduleBegTs < dayBegTs {
-	//		continue
-	//	}
-	//	var stLessonStatisticItem LessonStatisticItem
-	//	_, _, packageType := comm.ParseCoursePackageId(v.PackageID)
-	//	stCoachAppointmentModel, err := dao.ImpAppointment.GetAppointmentById(v.AppointmentID)
-	//	if err != nil {
-	//		Printf("GetAppointmentById err, err:%+v AppointmentID:%d\n", err, v.AppointmentID)
-	//	}
-	//	if stCoachAppointmentModel != nil {
-	//		t := time.Unix(stCoachAppointmentModel.CreateTs, 0)
-	//		stLessonStatisticItem.BookingTime = "课程发起预约的时间 " + t.Format("2006年01月02日 15:04")
-	//	}
-	//
-	//	stLessonStatisticItem.LessonID = v.LessonID
-	//	if packageType == model.Enum_PackageType_PaidPackage {
-	//		stLessonStatisticItem.LessonType = "正式课"
-	//	} else {
-	//		stLessonStatisticItem.LessonType = "体验课"
-	//	}
-	//
-	//	if v.Status == model.En_LessonStatus_Scheduled {
-	//		stLessonStatisticItem.LessonStatus = "已预约"
-	//	} else if v.Status == model.En_LessonStatusCompleted {
-	//		stLessonStatisticItem.LessonStatus = "已完成"
-	//	} else if v.Status == model.En_LessonStatusCanceled {
-	//		stLessonStatisticItem.LessonStatus = "已取消"
-	//	} else if v.Status == model.En_LessonStatusMissed {
-	//		stLessonStatisticItem.LessonStatus = "已旷课"
-	//	}
-	//	t := time.Unix(v.ScheduleBegTs, 0)
-	//	stLessonStatisticItem.ScheduleBegTs = "课程开始时间 " + t.Format("2006年01月02日 15:04")
-	//	t = time.Unix(v.WriteOffTs, 0)
-	//	stLessonStatisticItem.WriteOffTs = "课程核销时间 " + t.Format("2006年01月02日 15:04")
-	//
-	//	stLessonStatisticItem.CommentContent = v.CommentContent
-	//	rsp.LessonStatisticItemList = append(rsp.LessonStatisticItemList, stLessonStatisticItem)
-	//}
+	mapPaidLessonWriteOffUid := make(map[int64]string)
+	mapTrailLessonBookingUid := make(map[int64]string)
+	mapTrailLessonWriteOffUid := make(map[int64]string)
+
+	for _, v := range vecAllSingleLesson {
+		_, _, packageType := comm.ParseCoursePackageId(v.PackageID)
+		if packageType == model.Enum_PackageType_PaidPackage {
+			if v.Status == model.En_LessonStatusCompleted {
+				tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+				tmp.PaidLessonWriteOffPv += 1
+				mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+
+				if _, ok := mapPaidLessonWriteOffUid[v.Uid]; !ok {
+					tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+					tmp.PaidLessonWriteOffUv += 1
+					mapPaidLessonWriteOffUid[v.Uid] = mapAllUserModel[v.Uid].Nick
+					mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+				}
+			}
+		} else {
+			tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+			tmp.TrailLessonBookingCountPv += 1
+			mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+
+			if _, ok := mapTrailLessonBookingUid[v.Uid]; !ok {
+				tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+				tmp.TrailLessonBookingCountUv += 1
+				mapTrailLessonBookingUid[v.Uid] = mapAllUserModel[v.Uid].Nick
+				mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+			}
+
+			if v.Status == model.En_LessonStatusCompleted {
+				tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+				tmp.TrailLessonWriteOffPv += 1
+				mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+
+				if _, ok := mapTrailLessonWriteOffUid[v.Uid]; !ok {
+					tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+					tmp.TrailLessonWriteOffUv += 1
+					mapTrailLessonWriteOffUid[v.Uid] = mapAllUserModel[v.Uid].Nick
+					mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+				}
+			}
+		}
+	}
 
 	for _, v := range mapCoach {
 		var stCoachStatisticItem CoachStatisticItem
