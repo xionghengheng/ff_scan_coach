@@ -39,19 +39,19 @@ type CoachStatisticItem struct {
 
 // 计算统计数据
 type StatisticCalcInfo struct {
-	TrailPackageUv              int            `json:"trail_package_uv"`                // 体验用户数
-	TrailPackageUidList         map[int64]bool `json:"trail_package_uid_list"`          // 体验课课包用户数
-	TrailBookingCountUv         int            `json:"trail_booking_count_uv"`          // 体验约课人数
-	TrailBookingCountPv         int            `json:"trail_booking_count_pv"`          // 体验约课次数
-	TrailLessonWriteOffUv       int            `json:"trail_lesson_writeoff_uv"`        // 体验课核销人数
-	TrailLessonWriteOffPv       int            `json:"trail_lesson_writeoff_pv"`        // 体验课核销次数
-	PaidPackageUv               int            `json:"paid_package_uv"`                 // 正式课课包付费用户数
-	PaidPackageUidList          map[int64]bool `json:"paid_package_uid_list"`           // 正式课课包付费用户数
-	PaidPackageTotalLessonCount int            `json:"paid_package_total_lesson_count"` // 正式课付费课时次数
-	PaidPackageSalesRevenue     int            `json:"paid_package_sales_revenue"`      // 正式课付费销售额
-	PaidLessonWriteOffUv        int            `json:"paid_lesson_writeoff_uv"`         // 正式课核销人数
-	PaidLessonWriteOffPv        int            `json:"paid_lesson_writeoff_pv"`         // 正式课核销次数
-	PaidLessonWriteOffAmount    int            `json:"paid_lesson_writeoff_amount"`     // 正式课核销金额
+	TrailPackageUv              int              `json:"trail_package_uv"`                // 体验用户数
+	TrailPackageUidList         map[int64]string `json:"trail_package_uid_list"`          // 体验课课包用户数
+	TrailBookingCountUv         int              `json:"trail_booking_count_uv"`          // 体验约课人数
+	TrailBookingCountPv         int              `json:"trail_booking_count_pv"`          // 体验约课次数
+	TrailLessonWriteOffUv       int              `json:"trail_lesson_writeoff_uv"`        // 体验课核销人数
+	TrailLessonWriteOffPv       int              `json:"trail_lesson_writeoff_pv"`        // 体验课核销次数
+	PaidPackageUv               int              `json:"paid_package_uv"`                 // 正式课课包付费用户数
+	PaidPackageUidList          map[int64]string `json:"paid_package_uid_list"`           // 正式课课包付费用户数
+	PaidPackageTotalLessonCount int              `json:"paid_package_total_lesson_count"` // 正式课付费课时次数
+	PaidPackageSalesRevenue     int              `json:"paid_package_sales_revenue"`      // 正式课付费销售额
+	PaidLessonWriteOffUv        int              `json:"paid_lesson_writeoff_uv"`         // 正式课核销人数
+	PaidLessonWriteOffPv        int              `json:"paid_lesson_writeoff_pv"`         // 正式课核销次数
+	PaidLessonWriteOffAmount    int              `json:"paid_lesson_writeoff_amount"`     // 正式课核销金额
 }
 
 func getGetCoachStatiticHandlerReq(r *http.Request) (GetCoachStatisticReq, error) {
@@ -102,6 +102,14 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	mapAllUserModel, err := comm.GetAllUser()
+	if err != nil {
+		rsp.Code = -922
+		rsp.ErrorMsg = err.Error()
+		Printf("GetAllUser err, StatisticTs:%d err:%+v\n", req.StatisticTs, err)
+		return
+	}
+
 	vecCoachMonthlyStatisticModel, err := dao.ImpCoachClientMonthlyStatistic.GetAllItem()
 	if err != nil {
 		rsp.Code = -9000
@@ -125,8 +133,8 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	mapCoachId2StatisticCalcInfo := make(map[int]StatisticCalcInfo)
 	for _, v := range mapCoach {
 		var item StatisticCalcInfo
-		item.TrailPackageUidList = make(map[int64]bool)
-		item.PaidPackageUidList = make(map[int64]bool)
+		item.TrailPackageUidList = make(map[int64]string)
+		item.PaidPackageUidList = make(map[int64]string)
 		mapCoachId2StatisticCalcInfo[v.CoachID] = item
 	}
 
@@ -153,7 +161,7 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 			tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
 			if _, ok := tmp.PaidPackageUidList[v.Uid]; !ok {
 				tmp.PaidPackageUv += 1
-				tmp.PaidPackageUidList[v.Uid] = true
+				tmp.PaidPackageUidList[v.Uid] = mapAllUserModel[v.Uid].Nick
 				mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
 			}
 
@@ -175,7 +183,7 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 
 			if _, ok := tmp.TrailPackageUidList[v.Uid]; !ok {
 				tmp.TrailPackageUv += 1
-				tmp.TrailPackageUidList[v.Uid] = true
+				tmp.TrailPackageUidList[v.Uid] = mapAllUserModel[v.Uid].Nick
 				mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
 			}
 		}
@@ -192,7 +200,7 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if len(tmpVecAllSingleLesson) == 0 {
-			Printf("GetAllSingleLessonList empty, StatisticTs:%d vecAllSingleLesson.len:%d\n", req.StatisticTs, len(vecAllSingleLesson))
+			Printf("GetAllSingleLessonList empty, StatisticTs:%s vecAllSingleLesson.len:%d\n", req.StatisticTs, len(vecAllSingleLesson))
 			break
 		}
 		turnPageTs = tmpVecAllSingleLesson[len(tmpVecAllSingleLesson)-1].CreateTs
@@ -266,7 +274,7 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		stCoachStatisticItem.CourseIdList = v.CourseIdList
 		stCoachStatisticItem.GoodAt = v.GoodAt
 
-		if item,ok:=mapCoachId2StatisticCalcInfo[v.CoachID];ok{
+		if item, ok := mapCoachId2StatisticCalcInfo[v.CoachID]; ok {
 			stCoachStatisticItem.StatisticCalc = item
 		}
 		rsp.CoachStatisticItemList = append(rsp.CoachStatisticItemList, stCoachStatisticItem)
