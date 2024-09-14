@@ -138,7 +138,7 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if len(tmpVecAllUserModel) == 0 {
-			Printf("GetAllCoursePackageList empty, StatisticTs:%d vecAllPackageModel.len:%d\n", req.StatisticTs, len(vecAllPackageModel))
+			Printf("GetAllCoursePackageList empty, StatisticTs:%s vecAllPackageModel.len:%d\n", req.StatisticTs, len(vecAllPackageModel))
 			break
 		}
 		turnPageTs = tmpVecAllUserModel[len(tmpVecAllUserModel)-1].Ts
