@@ -265,6 +265,10 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		stCoachStatisticItem.RecReason = v.RecReason
 		stCoachStatisticItem.CourseIdList = v.CourseIdList
 		stCoachStatisticItem.GoodAt = v.GoodAt
+
+		if item,ok:=mapCoachId2StatisticCalcInfo[v.CoachID];ok{
+			stCoachStatisticItem.StatisticCalc = item
+		}
 		rsp.CoachStatisticItemList = append(rsp.CoachStatisticItemList, stCoachStatisticItem)
 	}
 	return
