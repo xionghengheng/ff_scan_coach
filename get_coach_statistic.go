@@ -124,7 +124,10 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 
 	mapCoachId2StatisticCalcInfo := make(map[int]StatisticCalcInfo)
 	for _, v := range mapCoach {
-		mapCoachId2StatisticCalcInfo[v.CoachID] = StatisticCalcInfo{}
+		var item StatisticCalcInfo
+		item.TrailPackageUidList = make(map[int64]bool)
+		item.PaidPackageUidList = make(map[int64]bool)
+		mapCoachId2StatisticCalcInfo[v.CoachID] = item
 	}
 
 	var vecAllPackageModel []model.CoursePackageModel
