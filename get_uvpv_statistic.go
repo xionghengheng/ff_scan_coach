@@ -12,17 +12,17 @@ import (
 
 type GetUvPvStatisticReq struct {
 	StatisticTs string `json:"statistic_ts"` //统计时间，比如20240908
-	PageId      string `json:"page_id"`
-	ButtondId   string `json:"buttond_id"`
+	PageId      string `json:"page_id"`      //页面id
+	ButtondId   string `json:"buttond_id"`   //按钮id
 }
 
 type GetUvPvStatisticRsp struct {
 	Code     int    `json:"code"`
 	ErrorMsg string `json:"errorMsg"`
-	PageUv   int64  `json:"page_uv"`
-	PagePv   int64  `json:"page_pv"`
-	ButtonUv int64  `json:"button_uv"`
-	ButtonPv int64  `json:"button_pv"`
+	PageUv   int64  `json:"page_uv"`    //页面uv
+	PagePv   int64  `json:"page_pv"`    //页面pv
+	ButtonUv int64  `json:"button_uv"`  //按钮uv
+	ButtonPv int64  `json:"button_pv"`  //按钮pv
 }
 
 func getGetUvPvStatisticReq(r *http.Request) (GetUvPvStatisticReq, error) {

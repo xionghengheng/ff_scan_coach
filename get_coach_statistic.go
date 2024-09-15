@@ -52,6 +52,11 @@ type StatisticCalcInfo struct {
 	PaidLessonWriteOffUv        int              `json:"paid_lesson_writeoff_uv"`         // 正式课核销人数
 	PaidLessonWriteOffPv        int              `json:"paid_lesson_writeoff_pv"`         // 正式课核销次数
 	PaidLessonWriteOffAmount    int              `json:"paid_lesson_writeoff_amount"`     // 正式课核销金额
+	CoachSchedulingUv           int              `json:"coach_scheduling_uv"`             // 教练排课人数
+	CoachSchedulingPv           int              `json:"coach_scheduling_pv"`             // 教练排课次数
+	DropoutUserCount            int              `json:"dropout_user_count"`              // 退课人数
+	DropoutLessonCount          int              `json:"dropout_lesson_count"`            // 退课节数
+	LastLoginTime               time.Time        `json:"last_login_time"`                 // 最后一次登录时间
 }
 
 func getGetCoachStatiticHandlerReq(r *http.Request) (GetCoachStatisticReq, error) {
