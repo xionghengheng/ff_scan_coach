@@ -56,7 +56,7 @@ type StatisticCalcInfo struct {
 	CoachSchedulingPv           int              `json:"coach_scheduling_pv"`             // 教练排课次数
 	DropoutUserCount            int              `json:"dropout_user_count"`              // 退课人数
 	DropoutLessonCount          int              `json:"dropout_lesson_count"`            // 退课节数
-	LastLoginTime               time.Time        `json:"last_login_time"`                 // 最后一次登录时间
+	LastLoginTime               string           `json:"last_login_time"`                 // 最后一次登录时间
 }
 
 func getGetCoachStatiticHandlerReq(r *http.Request) (GetCoachStatisticReq, error) {
