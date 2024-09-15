@@ -40,13 +40,13 @@ type CoachStatisticItem struct {
 // 计算统计数据
 type StatisticCalcInfo struct {
 	TrailPackageUv              int              `json:"trail_package_uv"`                // 体验用户数
-	TrailPackageUidList         map[int64]string `json:"trail_package_uid_list"`          // 体验课课包用户数
+	TrailPackageUidList         map[int64]string `json:"trail_package_uid_list"`          // 体验课课包用户列表
 	TrailLessonBookingCountUv   int              `json:"trail_lesson_booking_count_uv"`   // 体验约课人数
 	TrailLessonBookingCountPv   int              `json:"trail_lesson_booking_count_pv"`   // 体验约课次数
 	TrailLessonWriteOffUv       int              `json:"trail_lesson_writeoff_uv"`        // 体验课核销人数
 	TrailLessonWriteOffPv       int              `json:"trail_lesson_writeoff_pv"`        // 体验课核销次数
 	PaidPackageUv               int              `json:"paid_package_uv"`                 // 正式课课包付费用户数
-	PaidPackageUidList          map[int64]string `json:"paid_package_uid_list"`           // 正式课课包付费用户数
+	PaidPackageUidList          map[int64]string `json:"paid_package_uid_list"`           // 正式课课包付费用户列表
 	PaidPackageTotalLessonCount int              `json:"paid_package_total_lesson_count"` // 正式课付费课时次数
 	PaidPackageSalesRevenue     int              `json:"paid_package_sales_revenue"`      // 正式课付费销售额
 	PaidLessonWriteOffUv        int              `json:"paid_lesson_writeoff_uv"`         // 正式课核销人数
@@ -54,8 +54,9 @@ type StatisticCalcInfo struct {
 	PaidLessonWriteOffAmount    int              `json:"paid_lesson_writeoff_amount"`     // 正式课核销金额
 	CoachSchedulingUv           int              `json:"coach_scheduling_uv"`             // 教练排课人数
 	CoachSchedulingPv           int              `json:"coach_scheduling_pv"`             // 教练排课次数
-	DropoutUserCount            int              `json:"dropout_user_count"`              // 退课人数
-	DropoutLessonCount          int              `json:"dropout_lesson_count"`            // 退课节数
+	RefundPackageUv             int              `json:"refund_package_uv"`               // 退课人数
+	RefundPackageUidList        map[int64]string `json:"refund_package_uid_list"`         // 退课人数列表
+	RefundLessonCount           int              `json:"refund_lesson_count"`             // 退课节数
 	LastLoginTime               string           `json:"last_login_time"`                 // 最后一次登录时间
 }
 
@@ -114,6 +115,12 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		Printf("GetAllUser err, StatisticTs:%d err:%+v\n", req.StatisticTs, err)
 		return
 	}
+	mapCoachUid2CoachUserInfo := make(map[int]model.UserInfoModel)
+	for _, v := range mapAllUserModel {
+		if v.CoachId > 0 {
+			mapCoachUid2CoachUserInfo[v.CoachId] = v
+		}
+	}
 
 	vecCoachMonthlyStatisticModel, err := dao.ImpCoachClientMonthlyStatistic.GetAllItem()
 	if err != nil {
@@ -140,6 +147,7 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		var item StatisticCalcInfo
 		item.TrailPackageUidList = make(map[int64]string)
 		item.PaidPackageUidList = make(map[int64]string)
+		item.RefundPackageUidList = make(map[int64]string)
 		mapCoachId2StatisticCalcInfo[v.CoachID] = item
 	}
 
@@ -194,6 +202,22 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	for _, v := range vecAllPackageModel {
+		if v.RefundTs == 0 {
+			continue
+		}
+		tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+		if _, ok := tmp.RefundPackageUidList[v.Uid]; !ok {
+			tmp.RefundPackageUv += 1
+			tmp.RefundPackageUidList[v.Uid] = mapAllUserModel[v.Uid].Nick
+			mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+		}
+
+		tmp = mapCoachId2StatisticCalcInfo[v.CoachId]
+		tmp.RefundLessonCount += v.RefundLessonCnt
+		mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+	}
+
 	var vecAllSingleLesson []model.CoursePackageSingleLessonModel
 	turnPageTs = 0
 	for i := 0; i <= 5000; i++ {
@@ -215,7 +239,6 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	mapPaidLessonWriteOffUid := make(map[int64]string)
 	mapTrailLessonBookingUid := make(map[int64]string)
 	mapTrailLessonWriteOffUid := make(map[int64]string)
-
 	for _, v := range vecAllSingleLesson {
 		_, _, packageType := comm.ParseCoursePackageId(v.PackageID)
 		if packageType == model.Enum_PackageType_PaidPackage {
@@ -258,6 +281,23 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	mapCoachSchedulingUid := make(map[int64]string)
+	for _, v := range vecAllSingleLesson {
+		if !v.ScheduledByCoach {
+			continue
+		}
+		tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+		tmp.CoachSchedulingPv += 1
+		mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+
+		if _, ok := mapCoachSchedulingUid[v.Uid]; !ok {
+			tmp := mapCoachId2StatisticCalcInfo[v.CoachId]
+			tmp.CoachSchedulingUv += 1
+			mapCoachSchedulingUid[v.Uid] = mapAllUserModel[v.Uid].Nick
+			mapCoachId2StatisticCalcInfo[v.CoachId] = tmp
+		}
+	}
+
 	for _, v := range mapCoach {
 		var stCoachStatisticItem CoachStatisticItem
 		t := time.Unix(v.JoinTs, 0)
@@ -272,6 +312,8 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		stCoachStatisticItem.GoodAt = v.GoodAt
 
 		if item, ok := mapCoachId2StatisticCalcInfo[v.CoachID]; ok {
+			t := time.Unix(mapCoachUid2CoachUserInfo[v.CoachID].LastLoginTs, 0)
+			item.LastLoginTime = "最后一次登录时间 " + t.Format("2006年01月02日 15:04")
 			stCoachStatisticItem.StatisticCalc = item
 		}
 		rsp.CoachStatisticItemList = append(rsp.CoachStatisticItemList, stCoachStatisticItem)
