@@ -10,5 +10,5 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/common v1.0.991 // indirect
 	github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.991 // indirect
-	github.com/xionghengheng/ff_plib v0.0.0-20240915023437-e6e04677731e // indirect
+	github.com/xionghengheng/ff_plib v0.0.0-20240916031349-5ae4c4a2820a // indirect
 )

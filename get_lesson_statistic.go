@@ -97,7 +97,7 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		t, _ := time.Parse("20060102", req.StatisticTs)
 		dayBegTs = comm.GetTodayBegTsByTs(t.Unix())
 	}
-	mapCourse, err := comm.GetAllCouse()
+	mapCourse, err := comm.GetAllCourse()
 	if err != nil {
 		rsp.Code = -9111
 		rsp.ErrorMsg = err.Error()
