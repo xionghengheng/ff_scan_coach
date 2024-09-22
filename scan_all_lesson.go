@@ -4,6 +4,7 @@ import (
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
+	"os"
 	"strconv"
 	"time"
 )
@@ -118,7 +119,7 @@ func handleSendMsg() {
 				ToUser:           stUserModel.WechatID,
 				TemplateID:       "kENL0EQdSD5gvtUAPh58n923AwBEio7tec6e1bC2sb0",
 				Page:             "pages/home/index/index",
-				MiniprogramState: "trial",
+				MiniprogramState: os.Getenv("MiniprogramState"),
 				Lang:             "zh_CN",
 				Data: map[string]comm.MsgDataField{
 					"thing1": {Value: stCourseModel.Name},            //课程名称
