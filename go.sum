@@ -25,6 +25,10 @@ github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.991 h1:gj16ALD
 github.com/tencentcloud/tencentcloud-sdk-go/tencentcloud/sms v1.0.991/go.mod h1:NiNb9NvBlvawBGWivb7U9h4fMuyVLcy/kTde2X3wu7I=
 github.com/xionghengheng/ff_plib v0.0.0-20240916031349-5ae4c4a2820a h1:oS8OaV4TZ3OXMPp1gDSpjOuKoKctBCZtp5zNUFv8dRY=
 github.com/xionghengheng/ff_plib v0.0.0-20240916031349-5ae4c4a2820a/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
+github.com/xionghengheng/ff_plib v0.0.0-20240928135552-86f9ea4882c2 h1:4zbECTEF4hjbPDpYfLmVREFdeNzyY2mfFL5fPYcjLuc=
+github.com/xionghengheng/ff_plib v0.0.0-20240928135552-86f9ea4882c2/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
+github.com/xionghengheng/ff_plib v0.0.0-20240928140233-1d0bbf76d104 h1:bjfD6qdsM/+/DtqZttERIT25UL+SJvXndxZOrUTAZGw=
+github.com/xionghengheng/ff_plib v0.0.0-20240928140233-1d0bbf76d104/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd h1:GGJVjV8waZKRHrgwvtH66z9ZGVurTD1MT0n1Bb+q4aM=

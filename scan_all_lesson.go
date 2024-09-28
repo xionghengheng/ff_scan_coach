@@ -146,7 +146,7 @@ func handleSendMsg() {
 				vecTemplateParam = append(vecTemplateParam, tEnd.Format("15:04"))
 				vecTemplateParam = append(vecTemplateParam, stGymInfoModel.LocSimpleName)
 				vecTemplateParam = append(vecTemplateParam, stCoachModel.CoachName)
-				err := comm.SendSmsMsg2User("2247549", stUserModel.UserID, vecTemplateParam, *stUserModel.PhoneNumber)
+				err := comm.SendSmsMsg2User(comm.SmsTemplateId_LessonStartRemind, stUserModel.UserID, vecTemplateParam, *stUserModel.PhoneNumber)
 				if err != nil{
 					Printf("SendSmsMsg2User err, err:%+v traineeUid:%d PackageID:%s LessonID:%s vecTemplateParam:%+v", err, stUserModel.UserID, v.PackageID, v.LessonID, vecTemplateParam)
 				}else{
