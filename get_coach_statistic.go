@@ -101,11 +101,19 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		dayBegTs = comm.GetTodayBegTsByTs(t.Unix())
 	}
 
-	mapCoach, err := comm.GetAllCoach()
+	tmpMapCoach, err := comm.GetAllCoach()
 	if err != nil {
 		rsp.Code = -9111
 		rsp.ErrorMsg = err.Error()
 		return
+	}
+
+	mapCoach := make(map[int]model.CoachModel)
+	for k,v := range tmpMapCoach{
+		if v.BTestCoach == true{
+			continue
+		}
+		mapCoach[k] = v
 	}
 
 	mapAllUserModel, err := comm.GetAllUser()
@@ -138,6 +146,9 @@ func GetCoachStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range vecCoachMonthlyStatisticModel {
+		if mapCoach[v.CoachID].BTestCoach == true{
+			continue
+		}
 		rsp.TotalWriteOffLessonCnt += int64(v.LessonCnt)
 		rsp.TotalSales += int64(v.SaleRevenue)
 	}

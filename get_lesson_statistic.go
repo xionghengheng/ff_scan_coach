@@ -103,11 +103,19 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 		rsp.ErrorMsg = err.Error()
 		return
 	}
-	mapCoach, err := comm.GetAllCoach()
+	tmpMapCoach, err := comm.GetAllCoach()
 	if err != nil {
 		rsp.Code = -9111
 		rsp.ErrorMsg = err.Error()
 		return
+	}
+
+	mapCoach := make(map[int]model.CoachModel)
+	for k,v := range tmpMapCoach{
+		if v.BTestCoach == true{
+			continue
+		}
+		mapCoach[k] = v
 	}
 	mapGym, err := comm.GetAllGym()
 	if err != nil {
@@ -136,6 +144,9 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 
 	mapPayPackageUser := make(map[int64]bool)
 	for _, v := range vecAllPackageModel {
+		if mapCoach[v.CoachId].BTestCoach == true{
+			continue
+		}
 		if v.PackageType == model.Enum_PackageType_PaidPackage {
 			rsp.TotalCoursePackages += 1
 			mapPayPackageUser[v.Uid] = true
@@ -166,6 +177,9 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range vecAllSingleLesson {
+		if mapCoach[v.CoachId].BTestCoach == true{
+			continue
+		}
 		if v.Status == model.En_LessonStatusCompleted {
 			rsp.TotalClassesAttended += 1
 			rsp.TotalRedemptionAmount += int64(mapCourse[v.CourseID].Price)
@@ -181,6 +195,9 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 
 	//表单字段统计
 	for _, v := range vecAllPackageModel {
+		if mapCoach[v.CoachId].BTestCoach == true{
+			continue
+		}
 		if v.Ts < dayBegTs {
 			continue
 		}
@@ -212,6 +229,9 @@ func GetLessonStatiticHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range vecAllSingleLesson {
+		if mapCoach[v.CoachId].BTestCoach == true{
+			continue
+		}
 		if v.ScheduleBegTs < dayBegTs {
 			continue
 		}
