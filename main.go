@@ -43,6 +43,9 @@ func main() {
 
 	autoScanAllCoursePackageSingleLesson()
 
+	// 调用函数，设置每天晚上 11 点执行任务
+	autoScanAllAppointments()
+
 	if err := http.ListenAndServe(":80", handler); err != nil {
 		log.Fatalf("服务器启动失败: %v", err)
 	}
@@ -64,6 +67,34 @@ func autoScanAllCoursePackageSingleLesson() {
 		ticker := time.NewTicker(time.Second * time.Duration(300))
 		for range ticker.C {
 			ScanAllCoursePackageSingleLesson()
+		}
+	}()
+}
+
+
+//扫描所有预约，如果有教练连续两天没有设置课程，则触发微信通知告诉教练试课
+func autoScanAllAppointments() {
+	// 计算下一个执行时间
+	now := time.Now()
+	nextRun := time.Date(now.Year(), now.Month(), now.Day(), 23, 0, 0, 0, now.Location())
+
+	// 如果当前时间已经过了晚上 11 点，则设置下一个执行时间为明天的 11 点
+	if now.After(nextRun) {
+		nextRun = nextRun.Add(24 * time.Hour)
+	}
+
+	// 计算到下一个执行时间的间隔
+	durationUntilNextRun := nextRun.Sub(now)
+
+	// 创建一个 ticker，间隔为 24 小时
+	ticker := time.NewTicker(24 * time.Hour)
+
+	// 启动一个 goroutine 在下一个执行时间执行任务
+	go func() {
+		time.Sleep(durationUntilNextRun) // 等待到下一个执行时间
+		for {
+			ScanAllAppointments() // 执行任务
+			<-ticker.C // 等待下一个周期
 		}
 	}()
 }
