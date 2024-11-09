@@ -81,6 +81,48 @@ func handleLessonMissed() {
 			continue
 		}
 		Printf("UpdateSingleLesson2StatusMissed succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
+
+		stGymInfoModel, err := dao.ImpGym.GetGymInfoByGymId(v.GymId)
+		stCourseModel, err := dao.ImpCourse.GetCourseById(v.CourseID)
+		stUserModel, err := dao.ImpUser.GetUser(v.Uid)
+		stCoachModel, err := dao.ImpCoach.GetCoachById(v.CoachId)
+		t := time.Unix(v.ScheduleBegTs, 0)
+		tEnd := time.Unix(v.ScheduleEndTs, 0)
+		stWxSendMsg2UserReq := comm.WxSendMsg2UserReq{
+			ToUser:           stUserModel.WechatID,
+			TemplateID:       "xAnZb8sc8dbKNtD0vXiKcjubzGbM1ZtAOKCz6KBQzBw",
+			Page:             "pages/home/index/index",
+			MiniprogramState: os.Getenv("MiniprogramState"),
+			Lang:             "zh_CN",
+			Data: map[string]comm.MsgDataField{
+				"time1":  {Value: t.Format("2006年01月02日 15:04")}, //上课时间
+				"thing2": {Value: stCourseModel.Name},            //课程名称
+				"thing4": {Value: stGymInfoModel.LocName},        //上课地点
+				"thing5": {Value: "如由于忘记核销导致的已旷课，请及时补核销"},        //温馨提示
+			},
+		}
+		err = comm.SendMsg2User(v.Uid, stWxSendMsg2UserReq)
+		if err != nil {
+			Printf("[LessonMissNotify]sendMsg2User err, err:%+v uid:%d PackageID:%s LessonID:%s", err, v.Uid, v.PackageID, v.LessonID)
+		} else {
+			Printf("[LessonMissNotify]sendMsg2User succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
+		}
+
+		//您的学员{1}已旷课，原上课时间:{2}月{3}日{4}~{5}，上课地点:{6}，课程类型:{7)，若忘记核销课程，请您尽快补核销，超时将自动返还课时给用户!
+		var vecTemplateParam []string
+		vecTemplateParam = append(vecTemplateParam, stUserModel.Nick)
+		vecTemplateParam = append(vecTemplateParam, strconv.Itoa(int(t.Month())))
+		vecTemplateParam = append(vecTemplateParam, strconv.Itoa(t.Day()))
+		vecTemplateParam = append(vecTemplateParam, t.Format("15:04"))
+		vecTemplateParam = append(vecTemplateParam, tEnd.Format("15:04"))
+		vecTemplateParam = append(vecTemplateParam, stGymInfoModel.LocSimpleName)
+		vecTemplateParam = append(vecTemplateParam, stCourseModel.Name)
+		err = comm.SendSmsMsg2User(comm.SmsTemplateId_LessonMissedRemindCoach, stUserModel.UserID, vecTemplateParam, stCoachModel.Phone)
+		if err != nil {
+			Printf("[MissedRemindToCoach]SendSmsMsg2User err, err:%+v traineeUid:%d PackageID:%s LessonID:%s vecTemplateParam:%+v", err, stUserModel.UserID, v.PackageID, v.LessonID, vecTemplateParam)
+		} else {
+			Printf("[MissedRemindToCoach]SendSmsMsg2User succ, traineeUid:%d PackageID:%s LessonID:%s vecTemplateParam:%+v", stUserModel.UserID, v.PackageID, v.LessonID, vecTemplateParam)
+		}
 	}
 	return
 }
@@ -137,7 +179,7 @@ func handleSendMsg() {
 			Printf("UpdateSingleLesson2StatusSendMsg succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
 
 			//开课前一小时，发送短信通知用户
-			if stUserModel.PhoneNumber != nil{
+			if stUserModel.PhoneNumber != nil {
 				//您预约的{1}月{2}日{3}~{4}课程即将开始，场地：{5}，授课教练：{6}，现在可以前往场地热身了哦！
 				var vecTemplateParam []string
 				vecTemplateParam = append(vecTemplateParam, strconv.Itoa(int(t.Month())))
@@ -147,9 +189,9 @@ func handleSendMsg() {
 				vecTemplateParam = append(vecTemplateParam, stGymInfoModel.LocSimpleName)
 				vecTemplateParam = append(vecTemplateParam, stCoachModel.CoachName)
 				err := comm.SendSmsMsg2User(comm.SmsTemplateId_LessonStartRemind, stUserModel.UserID, vecTemplateParam, *stUserModel.PhoneNumber)
-				if err != nil{
+				if err != nil {
 					Printf("SendSmsMsg2User err, err:%+v traineeUid:%d PackageID:%s LessonID:%s vecTemplateParam:%+v", err, stUserModel.UserID, v.PackageID, v.LessonID, vecTemplateParam)
-				}else{
+				} else {
 					Printf("SendSmsMsg2User succ, traineeUid:%d PackageID:%s LessonID:%s vecTemplateParam:%+v", stUserModel.UserID, v.PackageID, v.LessonID, vecTemplateParam)
 				}
 			}
