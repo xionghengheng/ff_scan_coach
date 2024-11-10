@@ -65,6 +65,8 @@ func doSingleLessonScan() error {
 
 // 处理旷课的情况
 func handleLessonMissed() {
+	nowTs := time.Now().Unix()
+
 	vecNotFinishLesson, err := dao.ImpCoursePackageSingleLesson.GetSingleLessonListNotFinish(time.Now().Unix(), 100)
 	if err != nil {
 		Printf("GetSingleLessonListNotFinish err, err:%+v", err)
@@ -73,6 +75,10 @@ func handleLessonMissed() {
 
 	//将用户课包里的单节课状态变成已旷课
 	for _, v := range vecNotFinishLesson {
+		//课程结束后的30分钟内，暂时先不设置旷课态，避免教练忘记核销
+		if v.ScheduleEndTs < nowTs || v.ScheduleEndTs - nowTs <= 1800{
+			continue
+		}
 		mapUpdates := make(map[string]interface{})
 		mapUpdates["status"] = model.En_LessonStatusMissed
 		err = dao.ImpCoursePackageSingleLesson.UpdateSingleLesson(v.Uid, v.LessonID, mapUpdates)
