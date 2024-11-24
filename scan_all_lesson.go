@@ -85,6 +85,7 @@ func handleLessonMissed() {
 		if nowTs > v.ScheduleEndTs && nowTs-v.ScheduleEndTs <= 1800 {
 			continue
 		}
+
 		mapUpdates := make(map[string]interface{})
 		mapUpdates["status"] = model.En_LessonStatusMissed
 		err = dao.ImpCoursePackageSingleLesson.UpdateSingleLesson(v.Uid, v.LessonID, mapUpdates)
