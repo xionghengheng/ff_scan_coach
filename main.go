@@ -21,7 +21,6 @@ func enableCORS(next http.Handler) http.Handler {
 	})
 }
 
-
 func main() {
 	if err := db.Init(); err != nil {
 		panic(fmt.Sprintf("mysql init failed with %+v", err))
@@ -38,10 +37,11 @@ func main() {
 
 	mux.HandleFunc("/api/getUvPvStatistic", GetUvPvStatisticHandler)
 
-
 	autoScanCoachPersonalPageData()
 
 	autoScanAllCoursePackageSingleLesson()
+
+	autoScanAllPackage()
 
 	// 调用函数，设置每天晚上 11 点执行任务
 	autoScanAllAppointments()
@@ -51,7 +51,7 @@ func main() {
 	}
 }
 
-//扫描订单表和课程表，生成教练单月的营收数据统计（每17分钟扫描一次）
+// 扫描订单表和课程表，生成教练单月的营收数据统计（每17分钟扫描一次）
 func autoScanCoachPersonalPageData() {
 	go func() {
 		ticker := time.NewTicker(time.Second * time.Duration(1020))
@@ -61,7 +61,7 @@ func autoScanCoachPersonalPageData() {
 	}()
 }
 
-//扫描所有单次课程，处理旷课以及旷课退回的情况（每5分钟扫描一次）
+// 扫描所有单次课程，处理旷课以及旷课退回的情况（每5分钟扫描一次）
 func autoScanAllCoursePackageSingleLesson() {
 	go func() {
 		ticker := time.NewTicker(time.Second * time.Duration(300))
@@ -71,8 +71,17 @@ func autoScanAllCoursePackageSingleLesson() {
 	}()
 }
 
+// 每小时扫描一次
+func autoScanAllPackage() {
+	go func() {
+		ticker := time.NewTicker(time.Second * time.Duration(3600))
+		for range ticker.C {
+			ScanAllPackage()
+		}
+	}()
+}
 
-//扫描所有预约，如果有教练连续两天没有设置课程，则触发微信通知告诉教练试课
+// 扫描所有预约，如果有教练连续两天没有设置课程，则触发微信通知告诉教练试课
 func autoScanAllAppointments() {
 	// 计算下一个执行时间
 	now := time.Now()
@@ -94,8 +103,7 @@ func autoScanAllAppointments() {
 		time.Sleep(durationUntilNextRun) // 等待到下一个执行时间
 		for {
 			ScanAllAppointments() // 执行任务
-			<-ticker.C // 等待下一个周期
+			<-ticker.C            // 等待下一个周期
 		}
 	}()
 }
-

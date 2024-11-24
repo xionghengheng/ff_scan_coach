@@ -232,6 +232,7 @@ func handleSendMsgWhenLessonComplete() {
 			Printf("UpdateSingleLesson2StatusSendMsg err, err:%+v uid:%d PackageID:%s LessonID:%s", err, v.Uid, v.PackageID, v.LessonID)
 			continue
 		}
+		Printf("UpdateSingleLesson2StatusSendMsg succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
 
 		stCourseModel, err := dao.ImpCourse.GetCourseById(v.CourseID)
 		stCoachModel, err := dao.ImpCoach.GetCoachById(v.CoachId)
@@ -256,7 +257,6 @@ func handleSendMsgWhenLessonComplete() {
 		} else {
 			Printf("sendWxMsg2User succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
 		}
-		Printf("UpdateSingleLesson2StatusSendMsg succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
 	}
 
 }
