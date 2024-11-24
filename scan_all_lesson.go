@@ -58,7 +58,13 @@ func doSingleLessonScan() error {
 	//每5分钟处理一次
 	handleLessonMissed()
 
-	handleSendMsg()
+	//开课前一小时，发信息通知学员去上课
+	handleSendMsgBeforeLessonStart()
+
+	if !comm.IsProd() {
+		//课程完结后一小时，需要提醒用户去写评论
+		handleSendMsgWhenLessonComplete()
+	}
 
 	return nil
 }
@@ -76,7 +82,7 @@ func handleLessonMissed() {
 	//将用户课包里的单节课状态变成已旷课
 	for _, v := range vecNotFinishLesson {
 		//课程结束后的30分钟内，暂时先不设置旷课态，避免教练忘记核销
-		if v.ScheduleEndTs < nowTs || v.ScheduleEndTs - nowTs <= 1800{
+		if v.ScheduleEndTs < nowTs || v.ScheduleEndTs-nowTs <= 1800 {
 			continue
 		}
 		mapUpdates := make(map[string]interface{})
@@ -133,7 +139,7 @@ func handleLessonMissed() {
 	return
 }
 
-func handleSendMsg() {
+func handleSendMsgBeforeLessonStart() {
 	unNowTs := time.Now().Unix()
 	vecNotSendMsgLesson, err := dao.ImpCoursePackageSingleLesson.GetTodaySingleLessonListNotSendMsgGoLesson(unNowTs+4000, 1000)
 	if err != nil {
@@ -204,4 +210,53 @@ func handleSendMsg() {
 		}
 	}
 	return
+}
+
+func handleSendMsgWhenLessonComplete() {
+	unNowTs := time.Now().Unix()
+	vecNotSendWriteCommentMsgCompleteLesson, err := dao.ImpCoursePackageSingleLesson.GetSingleLessonListFinishNotSendMsgWriteComment(unNowTs, 1000)
+	if err != nil {
+		Printf("GetSingleLessonListNotFinish err, err:%+v", err)
+		return
+	}
+
+	for _, v := range vecNotSendWriteCommentMsgCompleteLesson {
+		//需要课程结束后1小时，才发提醒评论消息
+		if unNowTs <= v.ScheduleEndTs+3600 {
+			continue
+		}
+		mapUpdates := make(map[string]interface{})
+		mapUpdates["send_msg_write_comment"] = true
+		err = dao.ImpCoursePackageSingleLesson.UpdateSingleLesson(v.Uid, v.LessonID, mapUpdates)
+		if err != nil {
+			Printf("UpdateSingleLesson2StatusSendMsg err, err:%+v uid:%d PackageID:%s LessonID:%s", err, v.Uid, v.PackageID, v.LessonID)
+			continue
+		}
+
+		stCourseModel, err := dao.ImpCourse.GetCourseById(v.CourseID)
+		stCoachModel, err := dao.ImpCoach.GetCoachById(v.CoachId)
+		stUserModel, err := dao.ImpUser.GetUser(v.Uid)
+		t := time.Unix(v.ScheduleBegTs, 0)
+		stWxSendMsg2UserReq := comm.WxSendMsg2UserReq{
+			ToUser:           stUserModel.WechatID,
+			TemplateID:       "vrqe-O7w5ZmAAPT5MNciEqceSiVDRLJSkw6RKJXaMpo",
+			Page:             "pages/home/index/index",
+			MiniprogramState: os.Getenv("MiniprogramState"),
+			Lang:             "zh_CN",
+			Data: map[string]comm.MsgDataField{
+				"thing1": {Value: stCourseModel.Name},            //课程名称
+				"thing2": {Value: stCoachModel.CoachName},        //课程教练
+				"time3":  {Value: t.Format("2006年01月02日 15:04")}, //上课时间
+				"thing4": {Value: "太棒了，您完成了今天的私教课，很期待您的评价！"},     //温馨提示
+			},
+		}
+		err = comm.SendMsg2User(v.Uid, stWxSendMsg2UserReq)
+		if err != nil {
+			Printf("sendWxMsg2User err, err:%+v uid:%d PackageID:%s LessonID:%s", err, v.Uid, v.PackageID, v.LessonID)
+		} else {
+			Printf("sendWxMsg2User succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
+		}
+		Printf("UpdateSingleLesson2StatusSendMsg succ, uid:%d PackageID:%s LessonID:%s", v.Uid, v.PackageID, v.LessonID)
+	}
+
 }
