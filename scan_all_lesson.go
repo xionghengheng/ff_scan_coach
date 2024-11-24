@@ -82,7 +82,7 @@ func handleLessonMissed() {
 	//将用户课包里的单节课状态变成已旷课
 	for _, v := range vecNotFinishLesson {
 		//课程结束后的30分钟内，暂时先不设置旷课态，避免教练忘记核销
-		if v.ScheduleEndTs < nowTs || v.ScheduleEndTs-nowTs <= 1800 {
+		if nowTs > v.ScheduleEndTs && nowTs-v.ScheduleEndTs <= 1800 {
 			continue
 		}
 		mapUpdates := make(map[string]interface{})
