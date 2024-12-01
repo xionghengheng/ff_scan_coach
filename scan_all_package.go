@@ -21,7 +21,7 @@ func ScanAllPackage() {
 func doPackageScan() error {
 
 	if !comm.IsProd() {
-		//课程完结后一小时，需要提醒用户去写评论
+		//体验课包过期提醒
 		handleSendMsgWhenTrailPackageExpire()
 	}
 
@@ -48,7 +48,7 @@ func handleSendMsgWhenTrailPackageExpire() {
 	}
 
 	for _, v := range vecAllTrailPackageModel {
-		if v.RemainCnt == 0 || v.SendMsgTrailExpire || v.Ts > unNowTs || unNowTs-v.Ts < 7*86400 {
+		if v.RemainCnt == 0 || v.SendMsgTrailExpire || v.Ts > unNowTs || unNowTs-v.Ts < 13*86400 {
 			continue
 		}
 
