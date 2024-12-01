@@ -48,7 +48,7 @@ func handleSendMsgWhenTrailPackageExpire() {
 	}
 
 	for _, v := range vecAllTrailPackageModel {
-		if v.RemainCnt == 0 || v.SendMsgTrailExpire || v.Ts > unNowTs || unNowTs-v.Ts < 13*86400 {
+		if v.RemainCnt == 0 || v.SendMsgTrailExpire || v.Ts > unNowTs || unNowTs-v.Ts < 1*86400 {
 			continue
 		}
 
