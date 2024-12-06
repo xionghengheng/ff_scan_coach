@@ -249,7 +249,7 @@ func handleSendMsgWhenLessonComplete() {
 				"thing1": {Value: stCourseModel.Name},            //课程名称
 				"thing2": {Value: stCoachModel.CoachName},        //课程教练
 				"time3":  {Value: t.Format("2006年01月02日 15:04")}, //上课时间
-				"thing4": {Value: "太棒了，您完成了今天的私教课，很期待您的评价！"},     //温馨提示
+				"thing4": {Value: "您完成了今天的私教课，期待您的评价！"},     //温馨提示
 			},
 		}
 		err = comm.SendMsg2User(v.Uid, stWxSendMsg2UserReq)
