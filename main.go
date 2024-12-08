@@ -74,7 +74,7 @@ func autoScanAllCoursePackageSingleLesson() {
 // 每小时扫描一次
 func autoScanAllPackage() {
 	go func() {
-		ticker := time.NewTicker(time.Second * time.Duration(3600))
+		ticker := time.NewTicker(time.Second * time.Duration(600))
 		for range ticker.C {
 			ScanAllPackage()
 		}
