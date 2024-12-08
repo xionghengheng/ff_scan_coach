@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
@@ -62,7 +63,6 @@ func handleSendMsgWhenTrailPackageExpire() {
 
 		t := time.Unix(v.Ts+14*86400, 0)
 		stCourseModel, err := dao.ImpCourse.GetCourseById(v.CourseId)
-		stCoachModel, err := dao.ImpCoach.GetCoachById(v.CoachId)
 		stUserModel, err := dao.ImpUser.GetUser(v.Uid)
 		stWxSendMsg2UserReq := comm.WxSendMsg2UserReq{
 			ToUser:           stUserModel.WechatID,
@@ -71,10 +71,10 @@ func handleSendMsgWhenTrailPackageExpire() {
 			MiniprogramState: os.Getenv("MiniprogramState"),
 			Lang:             "zh_CN",
 			Data: map[string]comm.MsgDataField{
-				"thing3":  {Value: stCourseModel.Name},            //课程名称
-				"number1": {Value: stCoachModel.CoachName},        //剩余课时
-				"time4":   {Value: t.Format("2006年01月02日 15:04")}, //到期时间
-				"thing2":  {Value: "体验课有效期还剩余7天，请预约上课吧！"},         //备注
+				"thing3":  {Value: stCourseModel.Name},             //课程名称
+				"number1": {Value: fmt.Sprintf("%d", v.RemainCnt)}, //剩余课时
+				"time4":   {Value: t.Format("2006年01月02日 15:04")},  //到期时间
+				"thing2":  {Value: "体验课有效期还剩余7天，请预约上课吧！"},          //备注
 			},
 		}
 		err = comm.SendMsg2User(v.Uid, stWxSendMsg2UserReq)
