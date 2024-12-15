@@ -33,9 +33,7 @@ func doAppointmentsScan() error {
 
 	mapCoach := make(map[int]model.CoachModel)
 	for k, v := range tmpMapCoach {
-		if v.BTestCoach == true {
-			mapCoach[k] = v
-		}
+		mapCoach[k] = v
 	}
 
 	for _, v := range mapCoach {
@@ -79,7 +77,7 @@ func sendRemindMsgSetLessonAvailiable2Coach(coachId int) {
 	}
 	err = comm.SendMsg2User(stCoachUserModel.UserID, stWxSendMsg2UserReq)
 	if err != nil {
-		Printf("sendMsg2Coach err, err:%+v coachId:%", err, coachId)
+		Printf("sendMsg2Coach err, err:%+v coachId:%d WechatID:%s", err, coachId, stCoachUserModel.WechatID)
 	} else {
 		Printf("sendMsg2Coach succ, coachId:%d", coachId)
 	}
