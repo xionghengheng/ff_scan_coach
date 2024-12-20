@@ -77,7 +77,7 @@ func sendRemindMsgSetLessonAvailiable2Coach(coachId int) {
 	}
 	err = comm.SendMsg2User(stCoachUserModel.UserID, stWxSendMsg2UserReq)
 	if err != nil {
-		Printf("sendMsg2Coach err, err:%+v coachId:%d WechatID:%s", err, coachId, stCoachUserModel.WechatID)
+		Printf("sendMsg2Coach err, err:%+v coachId:%d uid:%d WechatID:%s", err, coachId, stCoachUserModel.UserID, stCoachUserModel.WechatID)
 	} else {
 		Printf("sendMsg2Coach succ, coachId:%d", coachId)
 	}
