@@ -49,9 +49,13 @@ func handleSendMsgWhenTrailPackageExpire() {
 	}
 
 	for _, v := range vecAllTrailPackageModel {
-		if v.RemainCnt == 0 || v.SendMsgTrailExpire || v.Ts > unNowTs || unNowTs-v.Ts < 1*86400 {
+		if v.RemainCnt == 0 || v.SendMsgTrailExpire || v.Ts > unNowTs || unNowTs-v.Ts < 7*86400 {
 			continue
 		}
+
+		// 已经过期很久的存量课包，也不通知了
+
+
 
 		mapUpdates := make(map[string]interface{})
 		mapUpdates["send_msg_trail_expire"] = true
