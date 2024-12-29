@@ -61,10 +61,9 @@ func doSingleLessonScan() error {
 	//开课前一小时，发信息通知学员去上课
 	handleSendMsgBeforeLessonStart()
 
-	if !comm.IsProd() {
-		//课程完结后一小时，需要提醒用户去写评论
-		handleSendMsgWhenLessonComplete()
-	}
+	//课程完结后一小时，需要提醒用户去写评论
+	handleSendMsgWhenLessonComplete()
+
 
 	return nil
 }

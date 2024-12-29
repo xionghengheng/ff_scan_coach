@@ -21,10 +21,8 @@ func ScanAllPackage() {
 
 func doPackageScan() error {
 
-	if !comm.IsProd() {
-		//体验课包过期提醒
-		handleSendMsgWhenTrailPackageExpire()
-	}
+	//体验课包过期提醒
+	handleSendMsgWhenTrailPackageExpire()
 
 	return nil
 }

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// 扫描所有单次课程，处理旷课以及旷课退回的情况
+// 扫描所有预约，如果教练过去2天没设置预约，直接通知教练
 func ScanAllAppointments() {
 	Printf("scan start, beg_time:%s", time.Now().Format("2006-01-02 15:04:05"))
 	err := doAppointmentsScan()
