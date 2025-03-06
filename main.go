@@ -37,6 +37,8 @@ func main() {
 
 	mux.HandleFunc("/api/getUvPvStatistic", GetUvPvStatisticHandler)
 
+	mux.HandleFunc("/api/getAllUserWithBindPhone", GetAllUserWithBindPhoneHandler)
+
 	autoScanCoachPersonalPageData()
 
 	autoScanAllCoursePackageSingleLesson()
