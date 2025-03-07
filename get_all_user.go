@@ -9,6 +9,7 @@ import (
 )
 
 type GetAllUserReq struct {
+	Type int `json:"type"`
 }
 
 type GetAllUserRsp struct {
@@ -87,9 +88,18 @@ func GetAllUserWithBindPhoneHandler(w http.ResponseWriter, r *http.Request) {
 		Printf("GetPageReport err, err:%+v\n", err)
 		return
 	}
-	for _, v := range vecUserInfoModel {
-		if v.PhoneNumber != nil && len(*v.PhoneNumber) > 0 {
-			rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemToModel(v))
+
+	if req.Type == 1 {
+		for _, v := range vecUserInfoModel {
+			if v.BeVipTs > 0 && v.PhoneNumber != nil && len(*v.PhoneNumber) > 0 {
+				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemToModel(v))
+			}
+		}
+	} else {
+		for _, v := range vecUserInfoModel {
+			if v.PhoneNumber != nil && len(*v.PhoneNumber) > 0 {
+				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemToModel(v))
+			}
 		}
 	}
 	return
