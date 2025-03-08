@@ -116,24 +116,24 @@ func GetAllTrailPackageHandler(w http.ResponseWriter, r *http.Request) {
 
 	if req.RemainCnt == -1 {
 		for _, v := range vecAllTrailPackageModel {
-			rsp.VecTrailPackageItem = append(rsp.VecTrailPackageItem, ConvertCourseItemModelToRTrailspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
+			rsp.VecTrailPackageItem = append(rsp.VecTrailPackageItem, ConvertCourseItemModel2TrailRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
 		}
 	} else if req.RemainCnt == 0 {
 		for _, v := range vecAllTrailPackageModel {
 			if v.RemainCnt == 0 {
-				rsp.VecTrailPackageItem = append(rsp.VecTrailPackageItem, ConvertCourseItemModelToRTrailspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
+				rsp.VecTrailPackageItem = append(rsp.VecTrailPackageItem, ConvertCourseItemModel2TrailRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
 			}
 		}
 	} else if req.RemainCnt == 1 {
 		for _, v := range vecAllTrailPackageModel {
 			if v.RemainCnt == 1 {
-				rsp.VecTrailPackageItem = append(rsp.VecTrailPackageItem, ConvertCourseItemModelToRTrailspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
+				rsp.VecTrailPackageItem = append(rsp.VecTrailPackageItem, ConvertCourseItemModel2TrailRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
 			}
 		}
 	} else if req.RemainCnt == 2 {
 		for _, v := range vecAllTrailPackageModel {
 			if v.RemainCnt == 2 {
-				rsp.VecTrailPackageItem = append(rsp.VecTrailPackageItem, ConvertCourseItemModelToRTrailspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
+				rsp.VecTrailPackageItem = append(rsp.VecTrailPackageItem, ConvertCourseItemModel2TrailRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
 			}
 		}
 	}
@@ -141,7 +141,7 @@ func GetAllTrailPackageHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // 转换函数
-func ConvertCourseItemModelToRTrailspItem(item model.CoursePackageModel,
+func ConvertCourseItemModel2TrailRspItem(item model.CoursePackageModel,
 	mapAllCoach map[int]model.CoachModel,
 	mapALlCourseModel map[int]model.CourseModel,
 	mapAllUserModel map[int64]model.UserInfoModel,

@@ -92,13 +92,13 @@ func GetAllUserWithBindPhoneHandler(w http.ResponseWriter, r *http.Request) {
 	if req.Type == 1 {
 		for _, v := range vecUserInfoModel {
 			if v.BeVipTs > 0 && v.PhoneNumber != nil && len(*v.PhoneNumber) > 0 {
-				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemModelToRspItem(v))
+				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemModel2RspItem(v))
 			}
 		}
 	} else {
 		for _, v := range vecUserInfoModel {
 			if v.PhoneNumber != nil && len(*v.PhoneNumber) > 0 {
-				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemModelToRspItem(v))
+				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemModel2RspItem(v))
 			}
 		}
 	}
@@ -106,7 +106,7 @@ func GetAllUserWithBindPhoneHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // 转换函数
-func ConvertUserItemModelToRspItem(item model.UserInfoModel) UserItem {
+func ConvertUserItemModel2RspItem(item model.UserInfoModel) UserItem {
 	var phoneNumber *string
 	if item.PhoneNumber != nil {
 		// 深拷贝手机号指针内容
