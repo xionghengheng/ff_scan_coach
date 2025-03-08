@@ -167,7 +167,7 @@ func ConvertCourseItemModelToRTrailspItem(item model.CoursePackageModel,
 		Ts:           item.Ts,
 		TotalCnt:     item.TotalCnt,
 		RemainCnt:    item.RemainCnt,
-		Price:        item.Price,
+		Price:        mapALlCourseModel[item.CourseId].Price,
 		LastLessonTs: item.LastLessonTs,
 	}
 }
