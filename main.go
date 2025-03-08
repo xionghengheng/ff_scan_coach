@@ -39,6 +39,8 @@ func main() {
 
 	mux.HandleFunc("/api/getAllUserWithBindPhone", GetAllUserWithBindPhoneHandler)
 
+	mux.HandleFunc("/api/getAllTrailPackage", GetAllTrailPackageHandler)
+
 	autoScanCoachPersonalPageData()
 
 	autoScanAllCoursePackageSingleLesson()
