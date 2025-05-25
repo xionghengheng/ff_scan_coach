@@ -43,6 +43,8 @@ func main() {
 
 	mux.HandleFunc("/api/getAllPaidPackage", GetAllPaidPackageHandler)
 
+	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
+
 	autoScanCoachPersonalPageData()
 
 	autoScanAllCoursePackageSingleLesson()

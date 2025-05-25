@@ -117,13 +117,13 @@ func GetAllPaidPackageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range vecAllPaidPackageModel {
-		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertCourseItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
+		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
 	}
 	return
 }
 
 // 转换函数
-func ConvertCourseItemModel2PaidRspItem(item model.CoursePackageModel,
+func ConvertPackageItemModel2PaidRspItem(item model.CoursePackageModel,
 	mapAllCoach map[int]model.CoachModel,
 	mapALlCourseModel map[int]model.CourseModel,
 	mapAllUserModel map[int64]model.UserInfoModel,
