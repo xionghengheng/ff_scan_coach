@@ -24,6 +24,7 @@ type PaidLessonItem struct {
 	UserName         string `json:"user_name"`          // 用户名称
 	PhoneNumber      string `json:"phone_number"`       // 手机号
 	PackageID        string `json:"package_id"`         // 课包的唯一标识符（用户id_获取课包的时间戳）
+	LessonID         string `json:"lesson_id"`          // 单节课的唯一标识符（用户id_场地id_课程id_教练id_发起预约的时间戳）
 	TotalCnt         int    `json:"total_cnt"`          // 课包中总的课程次数
 	RemainCnt        int    `json:"remain_cnt"`         // 课包中剩余的课程次数
 	GymId            int    `json:"gym_id"`             // 场地id
@@ -166,6 +167,7 @@ func ConvertCourseItemModel2PaidRspItem(item model.CoursePackageSingleLessonMode
 		UserName:         mapAllUserModel[item.Uid].Nick,
 		PhoneNumber:      strPhone,
 		PackageID:        item.PackageID,
+		LessonID:         item.LessonID,
 		TotalCnt:         mapAllPaidPackageModel[item.PackageID].TotalCnt,
 		RemainCnt:        mapAllPaidPackageModel[item.PackageID].RemainCnt,
 		GymId:            mapGym[item.GymId].GymID,
@@ -180,7 +182,7 @@ func ConvertCourseItemModel2PaidRspItem(item model.CoursePackageSingleLessonMode
 		ScheduleEndTs:    item.ScheduleEndTs,
 		Status:           item.Status,
 		LessonName:       item.LessonName,
-		Duration:         item.Duration,
+		Duration:         3600,
 		CancelByCoach:    item.CancelByCoach,
 		ScheduledByCoach: item.ScheduledByCoach,
 		WriteOffTs:       item.WriteOffTs,
