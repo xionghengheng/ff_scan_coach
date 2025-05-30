@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db"
 	"log"
 	"net/http"
@@ -49,10 +50,16 @@ func main() {
 
 	autoScanAllCoursePackageSingleLesson()
 
-	autoScanAllPackage()
 
-	// 调用函数，设置每天晚上 11 点执行任务
-	autoScanAllAppointments()
+	// 暂时不需要上线
+	if !comm.IsProd() {
+		// 给体验课包发送过期通知
+		autoScanAllPackage()
+
+		// 调用函数，设置每天晚上 11 点执行任务
+		autoScanAllAppointments()
+	}
+
 
 	if err := http.ListenAndServe(":80", handler); err != nil {
 		log.Fatalf("服务器启动失败: %v", err)

@@ -20,9 +20,6 @@ func ScanAllAppointments() {
 }
 
 func doAppointmentsScan() error {
-	if comm.IsProd() {
-		return nil
-	}
 	unDayBegTs := GetYesterdayBegTs()
 
 	tmpMapCoach, err := comm.GetAllCoach()

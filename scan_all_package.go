@@ -11,23 +11,10 @@ import (
 
 func ScanAllPackage() {
 	Printf("scan start, beg_time:%s", time.Now().Format("2006-01-02 15:04:05"))
-	err := doPackageScan()
-	if err != nil {
-		Printf("doPackageScan err, err:%+v", err)
-		return
-	}
+	handleSendMsgWhenTrailPackageExpire()
 	Printf("scan end, end_time:%s", time.Now().Format("2006-01-02 15:04:05"))
 }
 
-func doPackageScan() error {
-
-	if !comm.IsProd() {
-		//体验课包过期提醒
-		handleSendMsgWhenTrailPackageExpire()
-	}
-
-	return nil
-}
 
 func handleSendMsgWhenTrailPackageExpire() {
 	unNowTs := time.Now().Unix()
