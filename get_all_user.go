@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
 	"net/http"
@@ -29,13 +30,14 @@ type UserItem struct {
 	Weight                  int     `json:"weight"`                           //体重
 	Height                  int     `json:"height"`                           //身高
 	FitnessExperience       int     `json:"fitness_experience"`               //健身经验（初级=1，中级=2，高级=3）
-	FitnessGoal             int     `json:"fitness_goal"`                     //健身目标
+	FitnessGoal             int     `json:"fitness_goal"`                     //健身目标（1=减脂减重 2=增肌增重 3=塑型体态）
 	DesiredWeight           int     `json:"desired_weight"`                   //期望体重
-	TimeFrame               int     `json:"time_frame"`                       //期望多快达到
+	TimeFrame               int     `json:"time_frame"`                       //达成目标时间（1=慢一点但稳定 2=正常速度 3=越快真好）
 	PreferredBodyPart       string  `json:"preferred_body_part"`              //最期望增强部位
 	WeeklyExerciseFrequency int     `json:"weekly_exercise_frequency"`        //每周运动次数（频次1~2次/周=1，频次3~4次/周=2，频次5~7次/周=3）
 	PreferredPriceRange     int     `json:"preferred_price_range"`            //偏好价格档位(对应的体验课程id)
 	PreferredLocationID     int     `json:"preferred_location_id"`            //偏好健身房场地ID
+	PreferredLocationName   string  `json:"preferred_location_name"`          //偏好健身房场地名称
 	VipType                 int     `json:"vip_type"`                         //vip订阅类型 0=非会员 1=体验会员 2=付费年费会员
 	VipExpiredTs            int64   `json:"vip_expired_ts"`                   //vip过期时间
 	IsCoach                 bool    `json:"is_coach"`                         //是否教练
@@ -89,16 +91,23 @@ func GetAllUserWithBindPhoneHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	mapGym, err := comm.GetAllGym()
+	if err != nil {
+		rsp.Code = -933
+		rsp.ErrorMsg = err.Error()
+		return
+	}
+
 	if req.Type == 1 {
 		for _, v := range vecUserInfoModel {
 			if v.BeVipTs > 0 && v.PhoneNumber != nil && len(*v.PhoneNumber) > 0 {
-				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemModel2RspItem(v))
+				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemModel2RspItem(v, mapGym))
 			}
 		}
 	} else {
 		for _, v := range vecUserInfoModel {
 			if v.PhoneNumber != nil && len(*v.PhoneNumber) > 0 {
-				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemModel2RspItem(v))
+				rsp.VecUserItem = append(rsp.VecUserItem, ConvertUserItemModel2RspItem(v, mapGym))
 			}
 		}
 	}
@@ -106,7 +115,7 @@ func GetAllUserWithBindPhoneHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // 转换函数
-func ConvertUserItemModel2RspItem(item model.UserInfoModel) UserItem {
+func ConvertUserItemModel2RspItem(item model.UserInfoModel, mapGym map[int]model.GymInfoModel) UserItem {
 	var phoneNumber *string
 	if item.PhoneNumber != nil {
 		// 深拷贝手机号指针内容
@@ -132,6 +141,7 @@ func ConvertUserItemModel2RspItem(item model.UserInfoModel) UserItem {
 		WeeklyExerciseFrequency: item.WeeklyExerciseFrequency,
 		PreferredPriceRange:     item.PreferredPriceRange,
 		PreferredLocationID:     item.PreferredLocationID,
+		PreferredLocationName:   mapGym[item.PreferredLocationID].LocName,
 		VipType:                 item.VipType,
 		VipExpiredTs:            item.VipExpiredTs,
 		IsCoach:                 item.IsCoach,
