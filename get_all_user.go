@@ -35,7 +35,7 @@ type UserItem struct {
 	TimeFrame               int     `json:"time_frame"`                       //达成目标时间（1=慢一点但稳定 2=正常速度 3=越快真好）
 	PreferredBodyPart       string  `json:"preferred_body_part"`              //最期望增强部位
 	WeeklyExerciseFrequency int     `json:"weekly_exercise_frequency"`        //每周运动次数（频次1~2次/周=1，频次3~4次/周=2，频次5~7次/周=3）
-	PreferredPriceRange     int     `json:"preferred_price_range"`            //偏好价格档位(对应的体验课程id)
+	PreferredPriceRange     int     `json:"preferred_price_range"`            //偏好价格档位，对应的体验课程id（4=189元 5=219元 6=259元 12=299元）
 	PreferredLocationID     int     `json:"preferred_location_id"`            //偏好健身房场地ID
 	PreferredLocationName   string  `json:"preferred_location_name"`          //偏好健身房场地名称
 	VipType                 int     `json:"vip_type"`                         //vip订阅类型 0=非会员 1=体验会员 2=付费年费会员
