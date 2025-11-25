@@ -129,6 +129,8 @@ func autoScanAllAppointments() {
 // ---------------------------通卡相关扫描-------------------------------
 // 扫描所有单次课程，把过期的课程设置为已完成（每5分钟扫描一次）
 func autoScanPassCardAllLesson() {
+	ScanAllPassCardLesson()
+
 	go func() {
 		ticker := time.NewTicker(time.Second * time.Duration(300))
 		for range ticker.C {

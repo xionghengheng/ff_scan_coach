@@ -37,7 +37,7 @@ func handlePassCardLessonMissed() {
 
 	for _, v := range vecNotFinishLesson {
 		//当前时间已经超过课程结束时间
-		if nowTs > v.ScheduleEndTs {
+		if nowTs <= v.ScheduleEndTs {
 			continue
 		}
 
