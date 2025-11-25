@@ -34,6 +34,7 @@ func handlePassCardLessonMissed() {
 		Printf("GetSingleLessonListNotFinish err, err:%+v", err)
 		return
 	}
+	Printf("GetSingleLessonListNotFinish succ, vecNotFinishLesson.len:%d", len(vecNotFinishLesson))
 
 	for _, v := range vecNotFinishLesson {
 		//当前时间已经超过课程结束时间
