@@ -50,7 +50,6 @@ func main() {
 
 	autoScanAllCoursePackageSingleLesson()
 
-
 	// 暂时不需要上线
 	if !comm.IsProd() {
 		// 给体验课包发送过期通知
@@ -60,6 +59,10 @@ func main() {
 		autoScanAllAppointments()
 	}
 
+	// 通卡
+	if !comm.IsProd() {
+		autoScanPassCardAllLesson()
+	}
 
 	if err := http.ListenAndServe(":80", handler); err != nil {
 		log.Fatalf("服务器启动失败: %v", err)
@@ -119,6 +122,17 @@ func autoScanAllAppointments() {
 		for {
 			ScanAllAppointments() // 执行任务
 			<-ticker.C            // 等待下一个周期
+		}
+	}()
+}
+
+// ---------------------------通卡相关扫描-------------------------------
+// 扫描所有单次课程，把过期的课程设置为已完成（每5分钟扫描一次）
+func autoScanPassCardAllLesson() {
+	go func() {
+		ticker := time.NewTicker(time.Second * time.Duration(300))
+		for range ticker.C {
+			ScanAllPassCardLesson()
 		}
 	}()
 }
