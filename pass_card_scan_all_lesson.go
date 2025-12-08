@@ -59,6 +59,7 @@ func handlePassCardLessonMissed() {
 			continue
 		}
 		Printf("UpdateSingleLesson2StatusMissed succ, uid:%d LessonID:%s", v.Uid, v.LessonID)
+		sendWriteOffSuccMsg(v.Uid, v)
 	}
 	return
 }
@@ -129,5 +130,41 @@ func sendPassCardLessonRemindMsg(uid int64, stLessonModel pass_card_model.Lesson
 		Printf("sendPassCardLessonRemindMsg sendMsg2User err, err:%+v uid:%d LessonID:%s\n", err, uid, stLessonModel.LessonID)
 	} else {
 		Printf("sendPassCardLessonRemindMsg sendMsg2User succ, uid:%d LessonID:%s\n", uid, stLessonModel.LessonID)
+	}
+}
+
+// 给用户发通知，告知核销成功
+func sendWriteOffSuccMsg(uid int64, stLessonModel pass_card_model.LessonModel) {
+	stUserModel, err := dao.ImpUser.GetUser(uid)
+	if err != nil {
+		Printf("sendWriteOffSuccMsg GetUser err, err:%+v uid:%d LessonID:%s\n", err, uid, stLessonModel.LessonID)
+		return
+	}
+
+	stGymModel, err := pass_card_dao.ImpGym.GetGymInfoByGymId(stLessonModel.GymId)
+	if err != nil {
+		Printf("sendWriteOffSuccMsg GetGymInfoByGymId err, err:%+v gymId:%d uid:%d LessonID:%s\n", err, stLessonModel.GymId, uid, stLessonModel.LessonID)
+		return
+	}
+
+	t := time.Unix(stLessonModel.ScheduleBegTs, 0)
+	tNow := time.Now()
+	stWxSendMsg2UserReq := comm.WxSendMsg2UserReq{
+		ToUser:           stUserModel.WechatID,
+		TemplateID:       "B-iUFIzB8HgpvgoVYC7lVM5FSHgVrkG9yLvn0DFK1yc",
+		Page:             "pages/home/index/index",
+		MiniprogramState: os.Getenv("MiniprogramState"),
+		Lang:             "zh_CN",
+		Data: map[string]comm.MsgDataField{
+			"thing6": {Value: stGymModel.LocName},                  //门店
+			"time15": {Value: t.Format("2006年01月02日 15:04")},    //预约上课时间
+			"time5":  {Value: tNow.Format("2006年01月02日 15:04")}, //核销时间
+		},
+	}
+	err = comm.SendMsg2User(uid, stWxSendMsg2UserReq)
+	if err != nil {
+		Printf("sendWriteOffSuccMsg sendMsg2User err, err:%+v uid:%d LessonID:%s\n", err, uid, stLessonModel.LessonID)
+	} else {
+		Printf("sendWriteOffSuccMsg sendMsg2User succ, uid:%d LessonID:%s\n", uid, stLessonModel.LessonID)
 	}
 }
