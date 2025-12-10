@@ -93,7 +93,6 @@ func handleSendPassCardMsgBeforeLessonStart() {
 				continue
 			}
 			Printf("Update send_msg_go_lesson succ, uid:%d LessonID:%s", v.Uid, v.LessonID)
-
 			sendPassCardLessonRemindMsg(v.Uid, v)
 		}
 	}
