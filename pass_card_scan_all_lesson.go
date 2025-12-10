@@ -68,13 +68,13 @@ func handlePassCardLessonMissed() {
 func handleSendPassCardMsgBeforeLessonStart() {
 	nowTs := time.Now().Unix()
 	// 查询未完成的课程，时间范围设置为未来3小时内（确保能覆盖2小时前的课程）
-	vecNotFinishLesson, err := pass_card_dao.ImpPassCardLesson.GetLessonListNotFinish(nowTs+10800, 1000)
+	vecNotFinishAndNotSengGoMsgLesson, err := pass_card_dao.ImpPassCardLesson.GetLessonListNotFinishAndNotSendGoMsg(nowTs+10800, 1000)
 	if err != nil {
-		Printf("handleSendPassCardMsgBeforeLessonStart GetLessonListNotFinish err, err:%+v", err)
+		Printf("GetLessonListNotFinishAndNotSendGoMsg err, err:%+v", err)
 		return
 	}
 
-	for _, v := range vecNotFinishLesson {
+	for _, v := range vecNotFinishAndNotSengGoMsgLesson {
 		if v.ScheduleBegTs == 0 {
 			continue
 		}
@@ -83,6 +83,17 @@ func handleSendPassCardMsgBeforeLessonStart() {
 		// 使用时间窗口（2小时前到1小时50分前）来避免重复发送
 		// 这样即使扫描多次，也只会在这个窗口内发送一次
 		if nowTs >= v.ScheduleBegTs-7200 && nowTs < v.ScheduleBegTs-6600 {
+
+			mapUpdates := make(map[string]interface{})
+			mapUpdates["send_msg_go_lesson"] = true
+			mapUpdates["update_ts"] = nowTs
+			err = pass_card_dao.ImpPassCardLesson.UpdateLesson(v.Uid, v.LessonID, mapUpdates)
+			if err != nil {
+				Printf("Update send_msg_go_lesson err, err:%+v uid:%d LessonID:%s", err, v.Uid, v.LessonID)
+				continue
+			}
+			Printf("Update send_msg_go_lesson succ, uid:%d LessonID:%s", v.Uid, v.LessonID)
+
 			sendPassCardLessonRemindMsg(v.Uid, v)
 		}
 	}
