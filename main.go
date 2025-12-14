@@ -46,6 +46,8 @@ func main() {
 
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
 
+	mux.HandleFunc("/api/getAllCoachList", GetAllCoachListHandler)
+
 	autoScanCoachPersonalPageData()
 
 	autoScanAllCoursePackageSingleLesson()
