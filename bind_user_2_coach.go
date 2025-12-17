@@ -11,7 +11,6 @@ import (
 )
 
 type BindUser2CoachReq struct {
-	UserPhone     string `json:"user_phone"`      //用户手机号（用于匹配用户）
 	CoachPhone    string `json:"coach_phone"`     //教练手机号
 	LoginUserName string `json:"login_user_name"` //管理平台用户名
 	LoginPasswd   string `json:"login_passwd"`    //管理平台密码
@@ -51,12 +50,6 @@ func bindUser2CoachHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(req.UserPhone) == 0 {
-		rsp.Code = -997
-		rsp.ErrorMsg = "缺少用户手机号"
-		return
-	}
-
 	if len(req.CoachPhone) == 0 {
 		rsp.Code = -996
 		rsp.ErrorMsg = "缺少教练手机号"
@@ -88,11 +81,11 @@ func bindUser2CoachHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// 根据手机号获取用户信息
-	stUserInfoModel, err := dao.ImpUser.GetUserByPhone(req.UserPhone)
+	stCoachUserInfoModel, err := dao.ImpUser.GetUserByPhone(req.CoachPhone)
 	if err != nil {
 		rsp.Code = -993
 		rsp.ErrorMsg = "未找到对应用户"
-		Printf("bindUser2CoachHandler GetUserByPhone err, err:%+v UserPhone:%s\n", err, req.UserPhone)
+		Printf("bindUser2CoachHandler GetUserByPhone err, err:%+v CoachPhone:%s\n", err, req.CoachPhone)
 		return
 	}
 
@@ -124,14 +117,14 @@ func bindUser2CoachHandler(w http.ResponseWriter, r *http.Request) {
 	mapUpdates := make(map[string]interface{})
 	mapUpdates["is_coach"] = true
 	mapUpdates["coach_id"] = coachId
-	err = dao.ImpUser.UpdateUserInfo(stUserInfoModel.UserID, mapUpdates)
+	err = dao.ImpUser.UpdateUserInfo(stCoachUserInfoModel.UserID, mapUpdates)
 	if err != nil {
 		rsp.Code = -991
 		rsp.ErrorMsg = err.Error()
-		Printf("bindUser2CoachHandler UpdateUser err, err:%+v uid:%d coachId:%d\n", err, stUserInfoModel.UserID, coachId)
+		Printf("bindUser2CoachHandler UpdateUser err, err:%+v uid:%d coachId:%d\n", err, stCoachUserInfoModel.UserID, coachId)
 		return
 	}
 
-	Printf("bindUser2CoachHandler succ, uid:%d coachId:%d UserPhone:%s CoachPhone:%s\n", stUserInfoModel.UserID, coachId, req.UserPhone, req.CoachPhone)
+	Printf("bindUser2CoachHandler succ, uid:%d coachId:%d CoachPhone:%s\n", stCoachUserInfoModel.UserID, coachId, req.CoachPhone)
 	rsp.Code = 0
 }
