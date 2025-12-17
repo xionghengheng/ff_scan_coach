@@ -1,11 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/jinzhu/gorm"
 	"github.com/xionghengheng/ff_plib/comm"
@@ -154,45 +156,53 @@ func bindUser2CoachHandler(w http.ResponseWriter, r *http.Request) {
 
 	Printf("bindUser2CoachHandler succ, uid:%d coachId:%d CoachName:%s CoachPhone:%s\n", stCoachUserInfoModel.UserID, stCoachModel.CoachID, req.CoachName, req.CoachPhone)
 	rsp.Code = 0
-	go TestTriggerSetCoachLessonAvaliable(stCoachModel.CoachID)
+	go TestTriggerSetCoachLessonAvaliable(stCoachModel.CoachID, req.CoachName)
 }
 
-func TestTriggerSetCoachLessonAvaliable(coachId int) {
-	//go func() {
-	//	// 构造请求数据
-	//	req := TestTriggerSetCoachLessonAvaliableReq{
-	//		CoachId: coachId,
-	//		BegTs:   comm.GetTodayBeginTs(), // 使用今天的开始时间戳
-	//	}
-	//
-	//	// 将请求数据转换为JSON
-	//	reqBody, err := json.Marshal(req)
-	//	if err != nil {
-	//		Printf("TestTriggerSetCoachLessonAvaliable marshal req failed, coachId:%d, err:%+v\n", coachId, err)
-	//		return
-	//	}
-	//
-	//	// 发送HTTP POST请求
-	//	url := "http://localhost/api/testTriggerSetCoachLessonAvaliable"
-	//	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
-	//	if err != nil {
-	//		Printf("TestTriggerSetCoachLessonAvaliable http post failed, coachId:%d, err:%+v\n", coachId, err)
-	//		return
-	//	}
-	//	defer resp.Body.Close()
-	//
-	//	// 读取响应
-	//	var rsp TestTriggerSetCoachLessonAvaliableRsp
-	//	if err := json.NewDecoder(resp.Body).Decode(&rsp); err != nil {
-	//		Printf("TestTriggerSetCoachLessonAvaliable decode response failed, coachId:%d, err:%+v\n", coachId, err)
-	//		return
-	//	}
-	//
-	//	if rsp.Code != 0 {
-	//		Printf("TestTriggerSetCoachLessonAvaliable response error, coachId:%d, code:%d, errorMsg:%s\n", coachId, rsp.Code, rsp.ErrorMsg)
-	//		return
-	//	}
-	//
-	//	Printf("TestTriggerSetCoachLessonAvaliable success, coachId:%d\n", coachId)
-	//}()
+type TestTriggerSetCoachLessonAvaliableReq struct {
+	CoachId int   `json:"coach_id"` //教练id
+	BegTs   int64 `json:"beg_ts"`   //开始时间
+}
+
+type TestTriggerSetCoachLessonAvaliableRsp struct {
+	Code     int    `json:"code"`
+	ErrorMsg string `json:"errorMsg,omitempty"`
+}
+
+func TestTriggerSetCoachLessonAvaliable(coachId int, coachName string) {
+	// 构造请求数据
+	req := TestTriggerSetCoachLessonAvaliableReq{
+		CoachId: coachId,
+		BegTs:   time.Now().Unix(),
+	}
+
+	// 将请求数据转换为JSON
+	reqBody, err := json.Marshal(req)
+	if err != nil {
+		Printf("TestTriggerSetCoachLessonAvaliable marshal req failed, coachId:%d, err:%+v\n", coachId, err)
+		return
+	}
+
+	// 发送HTTP POST请求
+	url := "https://golang-v3fg-107847-6-1326535808.sh.run.tcloudbase.com/api/testTriggerSetCoachLessonAvaliable"
+	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+	if err != nil {
+		Printf("TestTriggerSetCoachLessonAvaliable http post failed, coachId:%d, err:%+v\n", coachId, err)
+		return
+	}
+	defer resp.Body.Close()
+
+	// 读取响应
+	var rsp TestTriggerSetCoachLessonAvaliableRsp
+	if err := json.NewDecoder(resp.Body).Decode(&rsp); err != nil {
+		Printf("TestTriggerSetCoachLessonAvaliable decode response failed, coachId:%d, err:%+v\n", coachId, err)
+		return
+	}
+
+	if rsp.Code != 0 {
+		Printf("TestTriggerSetCoachLessonAvaliable response error, coachId:%d, code:%d, errorMsg:%s\n", coachId, rsp.Code, rsp.ErrorMsg)
+		return
+	}
+
+	Printf("TestTriggerSetCoachLessonAvaliable success, coachId:%d coachName:%s\n", coachId, coachName)
 }
