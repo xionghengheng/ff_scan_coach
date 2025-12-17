@@ -185,7 +185,7 @@ func TestTriggerSetCoachLessonAvaliable(coachId int, coachName string) {
 
 	// 创建带超时的HTTP客户端
 	client := &http.Client{
-		Timeout: 30 * time.Second,
+		Timeout: 60 * time.Second,
 	}
 
 	// 发送HTTP POST请求
