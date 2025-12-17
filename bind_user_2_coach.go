@@ -2,10 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
 
+	"github.com/jinzhu/gorm"
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 )
@@ -83,8 +85,13 @@ func bindUser2CoachHandler(w http.ResponseWriter, r *http.Request) {
 	// 根据手机号获取用户信息
 	stCoachUserInfoModel, err := dao.ImpUser.GetUserByPhone(req.CoachPhone)
 	if err != nil {
-		rsp.Code = -993
-		rsp.ErrorMsg = "未找到对应用户"
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			rsp.Code = -911
+			rsp.ErrorMsg = "手机号对应的用户，未找到"
+		} else {
+			rsp.Code = -922
+			rsp.ErrorMsg = "通过手机号拉取用户信息失败"
+		}
 		Printf("bindUser2CoachHandler GetUserByPhone err, err:%+v CoachPhone:%s\n", err, req.CoachPhone)
 		return
 	}
