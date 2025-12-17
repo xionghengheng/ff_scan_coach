@@ -183,9 +183,14 @@ func TestTriggerSetCoachLessonAvaliable(coachId int, coachName string) {
 		return
 	}
 
+	// 创建带超时的HTTP客户端
+	client := &http.Client{
+		Timeout: 30 * time.Second,
+	}
+
 	// 发送HTTP POST请求
 	url := "https://golang-v3fg-107847-6-1326535808.sh.run.tcloudbase.com/api/testTriggerSetCoachLessonAvaliable"
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(reqBody))
+	resp, err := client.Post(url, "application/json", bytes.NewBuffer(reqBody))
 	if err != nil {
 		Printf("TestTriggerSetCoachLessonAvaliable http post failed, coachId:%d, err:%+v\n", coachId, err)
 		return
