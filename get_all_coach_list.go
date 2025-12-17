@@ -46,7 +46,6 @@ type CoachInfoForFrontend struct {
 	Style               string                 `json:"style"`                 //教练风格（逗号分隔）
 	YearsOfWork         string                 `json:"years_of_work"`         //从业时长
 	TotalCompleteLesson string                 `json:"total_complete_lesson"` //累计上课节数
-	CourseIdList        string                 `json:"course_id_list"`        //课程id列表（逗号分隔）
 	BTestCoach          bool                   `json:"b_test_coach"`          //是否测试教练
 	CanShow             int                    `json:"can_show"`              //是否可展示
 	QualifyDetail       QualifyDetail          `json:"qualify_detail"`        //教练资质详细描述
@@ -143,7 +142,6 @@ func GetAllCoachListHandler(w http.ResponseWriter, r *http.Request) {
 			Style:               coachModel.Style,
 			YearsOfWork:         coachModel.YearsOfWork,
 			TotalCompleteLesson: coachModel.TotalCompleteLesson,
-			CourseIdList:        coachModel.CourseIdList,
 			BTestCoach:          coachModel.BTestCoach,
 			CanShow:             coachModel.CanShow,
 		}

@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/xionghengheng/ff_plib/comm"
-	"github.com/xionghengheng/ff_plib/db"
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/xionghengheng/ff_plib/comm"
+	"github.com/xionghengheng/ff_plib/db"
 )
 
 // enableCORS 中间件函数，用于设置 CORS 头
@@ -46,7 +47,10 @@ func main() {
 
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
 
+	//------------------ 离线数据管理平台相关接口 -------------------------//
 	mux.HandleFunc("/api/getAllCoachList", GetAllCoachListHandler)
+
+	mux.HandleFunc("/api/bindUser2Coach", bindUser2CoachHandler)
 
 	autoScanCoachPersonalPageData()
 
