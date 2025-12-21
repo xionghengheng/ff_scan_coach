@@ -191,6 +191,8 @@ func GetAllCoachListHandler(w http.ResponseWriter, r *http.Request) {
 		if len(coachModel.CourseIdList) > 0 {
 			vecCourseId := strings.Split(coachModel.CourseIdList, ",")
 			for _, id := range vecCourseId {
+				// trim掉可能存在的换行符和空格
+				id = strings.TrimSpace(id)
 				nId, err := strconv.ParseInt(id, 10, 64)
 				if err != nil {
 					Printf("ParseInt err, err:%+v id:%d CoachID:%d CourseIdList:%s\n", err, id, coachModel.CoachID, coachModel.CourseIdList)
