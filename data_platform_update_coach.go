@@ -22,7 +22,6 @@ type UpdateCoachReq struct {
 	TotalCompleteLesson string `json:"total_complete_lesson,omitempty"` //累计上课节数
 	GymIDs              string `json:"gym_ids,omitempty"`               //教练绑定的健身房id列表（英文逗号分隔）
 	CourseIdList        string `json:"course_id_list,omitempty"`        //教练可上的课程id列表（英文逗号分隔）
-
 	//QualifyType *int `json:"qualify_type,omitempty"` //教练资质类型（使用指针以区分0值和未设置）
 	//LoginUserName       string `json:"login_user_name"`                 //管理平台用户名（必填）
 	//LoginPasswd         string `json:"login_passwd"`                    //管理平台密码（必填）
