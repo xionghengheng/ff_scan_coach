@@ -20,8 +20,8 @@ type UpdateCoachReq struct {
 	SkillCertification  string `json:"skill_certification,omitempty"`   //教练的技能认证（英文逗号分隔）
 	YearsOfWork         string `json:"years_of_work,omitempty"`         //从业时长
 	TotalCompleteLesson string `json:"total_complete_lesson,omitempty"` //累计上课节数
-	GymIDs              string `json:"gym_ids,omitempty"`               //教练绑定的健身房id列表（逗号分隔）
-	CourseIdList        string `json:"course_id_list,omitempty"`        //教练可上的课程id列表（逗号分隔）
+	GymIDs              string `json:"gym_ids,omitempty"`               //教练绑定的健身房id列表（英文逗号分隔）
+	CourseIdList        string `json:"course_id_list,omitempty"`        //教练可上的课程id列表（英文逗号分隔）
 
 	//QualifyType *int `json:"qualify_type,omitempty"` //教练资质类型（使用指针以区分0值和未设置）
 	//LoginUserName       string `json:"login_user_name"`                 //管理平台用户名（必填）
@@ -79,12 +79,12 @@ func UpdateCoachHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(req.LoginUserName) == 0 || len(req.LoginPasswd) == 0 {
-		rsp.Code = -995
-		rsp.ErrorMsg = "缺少管理平台用户名或密码"
-		Printf("UpdateCoachHandler missing auth info\n")
-		return
-	}
+	//if len(req.LoginUserName) == 0 || len(req.LoginPasswd) == 0 {
+	//	rsp.Code = -995
+	//	rsp.ErrorMsg = "缺少管理平台用户名或密码"
+	//	Printf("UpdateCoachHandler missing auth info\n")
+	//	return
+	//}
 
 	//// 验证管理平台用户名和密码
 	//adminUserName := os.Getenv("ADMIN_USER_NAME")
