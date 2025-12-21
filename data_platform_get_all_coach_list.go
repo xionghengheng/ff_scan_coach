@@ -135,6 +135,10 @@ func GetAllCoachListHandler(w http.ResponseWriter, r *http.Request) {
 			GymName: gymInfo.LocName,
 		})
 	}
+	// 按照门店ID排序
+	sort.Slice(rsp.VecAllGym, func(i, j int) bool {
+		return rsp.VecAllGym[i].GymID < rsp.VecAllGym[j].GymID
+	})
 
 	// 构建全量课程列表
 	for courseId, courseName := range mapCourse {
@@ -143,6 +147,10 @@ func GetAllCoachListHandler(w http.ResponseWriter, r *http.Request) {
 			CourseName: courseName,
 		})
 	}
+	// 按照课程ID排序
+	sort.Slice(rsp.VecAllCourse, func(i, j int) bool {
+		return rsp.VecAllCourse[i].CourseID < rsp.VecAllCourse[j].CourseID
+	})
 
 	// 过滤并转换教练信息
 	for _, coachModel := range mapCoach {
