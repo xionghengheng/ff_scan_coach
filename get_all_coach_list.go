@@ -180,7 +180,7 @@ func GetAllCoachListHandler(w http.ResponseWriter, r *http.Request) {
 			for _, id := range vecCourseId {
 				nId, err := strconv.ParseInt(id, 10, 64)
 				if err != nil {
-					Printf("ParseInt err, CoachID:%d CourseIdList:%s\n", coachModel.CoachID, coachModel.CourseIdList)
+					Printf("ParseInt err, err:%+v id:%d CoachID:%d CourseIdList:%s\n", err, id, coachModel.CoachID, coachModel.CourseIdList)
 					continue
 				}
 				if courseName, ok := mapCourse[int(nId)]; ok {
