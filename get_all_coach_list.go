@@ -65,6 +65,8 @@ type GetAllCoachListRsp struct {
 	ErrorMsg     string                 `json:"errorMsg,omitempty"`
 	VecCoachInfo []CoachInfoForFrontend `json:"coach_list,omitempty"` //教练列表（包含资质描述）
 	TotalCount   int                    `json:"total_count"`          //教练总数
+	VecAllGym    []SimpleShowGymInfo    `json:"all_gym_list"`         //全量门店列表
+	VecAllCourse []SimpleShowCourseInfo `json:"all_course_list"`      //全量课程列表
 }
 
 func getGetAllCoachListHandler(r *http.Request) (GetAllCoachListReq, error) {
@@ -124,6 +126,22 @@ func GetAllCoachListHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 获取资质描述映射
 	stCoachQualifyDesc := getCoachQualifyDesc()
+
+	// 构建全量门店列表
+	for gymId, gymInfo := range mapGym {
+		rsp.VecAllGym = append(rsp.VecAllGym, SimpleShowGymInfo{
+			GymID:   gymId,
+			GymName: gymInfo.LocName,
+		})
+	}
+
+	// 构建全量课程列表
+	for courseId, courseName := range mapCourse {
+		rsp.VecAllCourse = append(rsp.VecAllCourse, SimpleShowCourseInfo{
+			CourseID:   courseId,
+			CourseName: courseName,
+		})
+	}
 
 	// 过滤并转换教练信息
 	for _, coachModel := range mapCoach {
