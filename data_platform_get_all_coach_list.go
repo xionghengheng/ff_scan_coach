@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -203,6 +204,11 @@ func GetAllCoachListHandler(w http.ResponseWriter, r *http.Request) {
 
 		rsp.VecCoachInfo = append(rsp.VecCoachInfo, coachInfoForFrontend)
 	}
+
+	// 按照教练ID排序，确保每次返回顺序一致
+	sort.Slice(rsp.VecCoachInfo, func(i, j int) bool {
+		return rsp.VecCoachInfo[i].CoachID < rsp.VecCoachInfo[j].CoachID
+	})
 
 	rsp.TotalCount = len(rsp.VecCoachInfo)
 }
