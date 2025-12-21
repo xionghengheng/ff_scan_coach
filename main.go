@@ -52,6 +52,8 @@ func main() {
 
 	mux.HandleFunc("/api/bindUser2Coach", bindUser2CoachHandler)
 
+	mux.HandleFunc("/api/updateCoach", UpdateCoachHandler)
+
 	autoScanCoachPersonalPageData()
 
 	autoScanAllCoursePackageSingleLesson()
