@@ -45,14 +45,14 @@ func main() {
 
 	mux.HandleFunc("/api/getAllPaidPackage", GetAllPaidPackageHandler)
 
-	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
-
 	//------------------ 离线数据管理平台相关接口 -------------------------//
 	mux.HandleFunc("/api/getAllCoachList", GetAllCoachListHandler)
 
 	mux.HandleFunc("/api/bindUser2Coach", bindUser2CoachHandler)
 
 	mux.HandleFunc("/api/updateCoach", UpdateCoachHandler)
+
+	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
 
 	autoScanCoachPersonalPageData()
 

@@ -143,6 +143,9 @@ func GetAllPaidLessonHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range vecAllSingleLesson {
+		if mapAllCoach[v.CoachId].BTestCoach {
+			continue
+		}
 		rsp.VecPaidLessonItem = append(rsp.VecPaidLessonItem, ConvertCourseItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapAllPaidPackageModel))
 	}
 	return
