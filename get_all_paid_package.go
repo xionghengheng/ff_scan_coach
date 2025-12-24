@@ -3,10 +3,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
-	"net/http"
 )
 
 type GetAllPaidPackageReq struct {
@@ -117,6 +118,9 @@ func GetAllPaidPackageHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	for _, v := range vecAllPaidPackageModel {
+		if mapAllCoach[v.CoachId].BTestCoach {
+			continue
+		}
 		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
 	}
 	return
