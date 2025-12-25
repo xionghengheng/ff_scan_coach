@@ -16,10 +16,8 @@ import (
 )
 
 type BindUser2CoachReq struct {
-	CoachName     string `json:"coach_name"`      //教练名称
-	CoachPhone    string `json:"coach_phone"`     //教练手机号
-	LoginUserName string `json:"login_user_name"` //管理平台用户名
-	LoginPasswd   string `json:"login_passwd"`    //管理平台密码
+	CoachName  string `json:"coach_name"`  //教练名称
+	CoachPhone string `json:"coach_phone"` //教练手机号
 }
 
 type BindUser2CoachRsp struct {
@@ -68,27 +66,37 @@ func bindUser2CoachHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if len(req.LoginUserName) == 0 || len(req.LoginPasswd) == 0 {
-		rsp.Code = -995
-		rsp.ErrorMsg = "缺少管理平台用户名或密码"
+	// 验证用户名和密码
+	adminUserName := os.Getenv("ADMIN_USER_NAME")
+	adminPasswd := os.Getenv("ADMIN_PASSWD")
+	if len(adminUserName) == 0 || len(adminPasswd) == 0 {
+		rsp.Code = -900
+		rsp.ErrorMsg = "后台配置错误"
+		Printf("conf err, adminUserName:%s adminPasswd:%s\n", adminUserName, adminPasswd)
 		return
 	}
 
-	// 验证管理平台用户名和密码（这里可以根据实际需求修改验证逻辑）
-	// 可以通过环境变量或配置文件来设置管理平台的用户名和密码
-	adminUserName := os.Getenv("ADMIN_USER_NAME")
-	adminPasswd := os.Getenv("ADMIN_PASSWD")
-	if len(adminUserName) == 0 {
-		adminUserName = "admin" // 默认值，实际应该从环境变量获取
-	}
-	if len(adminPasswd) == 0 {
-		adminPasswd = "admin123" // 默认值，实际应该从环境变量获取
+	// 从header中提取用户名和密码进行校验
+	username := r.Header.Get("X-Username")
+	if username == "" {
+		rsp.Code = -995
+		rsp.ErrorMsg = "缺少X-Username header"
+		Printf("bindUser2CoachHandler missing X-Username header\n")
+		return
 	}
 
-	if req.LoginUserName != adminUserName || req.LoginPasswd != adminPasswd {
+	password := r.Header.Get("X-Password")
+	if password == "" {
+		rsp.Code = -995
+		rsp.ErrorMsg = "缺少X-Password header"
+		Printf("bindUser2CoachHandler missing X-Password header\n")
+		return
+	}
+
+	if username != adminUserName || password != adminPasswd {
 		rsp.Code = -994
-		rsp.ErrorMsg = "管理平台用户名或密码错误"
-		Printf("bindUser2CoachHandler auth failed, LoginUserName:%s\n", req.LoginUserName)
+		rsp.ErrorMsg = "用户名或密码错误"
+		Printf("bindUser2CoachHandler auth failed, username:%s\n", username)
 		return
 	}
 

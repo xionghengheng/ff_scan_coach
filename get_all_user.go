@@ -3,10 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"net/http"
+	"os"
+
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
-	"net/http"
 )
 
 type GetAllUserReq struct {
@@ -76,6 +78,40 @@ func GetAllUserWithBindPhoneHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "application/json")
 		w.Write(msg)
 	}()
+
+	// 验证用户名和密码
+	adminUserName := os.Getenv("ADMIN_USER_NAME")
+	adminPasswd := os.Getenv("ADMIN_PASSWD")
+	if len(adminUserName) == 0 || len(adminPasswd) == 0 {
+		rsp.Code = -900
+		rsp.ErrorMsg = "后台配置错误"
+		Printf("conf err, adminUserName:%s adminPasswd:%s\n", adminUserName, adminPasswd)
+		return
+	}
+
+	// 从header中提取用户名和密码进行校验
+	username := r.Header.Get("X-Username")
+	if username == "" {
+		rsp.Code = -995
+		rsp.ErrorMsg = "缺少X-Username header"
+		Printf("GetAllUserWithBindPhoneHandler missing X-Username header\n")
+		return
+	}
+
+	password := r.Header.Get("X-Password")
+	if password == "" {
+		rsp.Code = -995
+		rsp.ErrorMsg = "缺少X-Password header"
+		Printf("GetAllUserWithBindPhoneHandler missing X-Password header\n")
+		return
+	}
+
+	if username != adminUserName || password != adminPasswd {
+		rsp.Code = -994
+		rsp.ErrorMsg = "用户名或密码错误"
+		Printf("GetAllUserWithBindPhoneHandler auth failed, username:%s\n", username)
+		return
+	}
 
 	if err != nil {
 		rsp.Code = -998

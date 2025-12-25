@@ -15,7 +15,7 @@ func enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
+		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Username, X-Password")
 		if r.Method == "OPTIONS" {
 			return
 		}
@@ -39,20 +39,24 @@ func main() {
 
 	mux.HandleFunc("/api/getUvPvStatistic", GetUvPvStatisticHandler)
 
-	mux.HandleFunc("/api/getAllUserWithBindPhone", GetAllUserWithBindPhoneHandler)
-
-	mux.HandleFunc("/api/getAllTrailPackage", GetAllTrailPackageHandler)
-
 	//------------------ 离线数据管理平台相关接口 -------------------------//
+	// 教练信息管理平台
 	mux.HandleFunc("/api/getAllCoachList", GetAllCoachListHandler)
 
 	mux.HandleFunc("/api/bindUser2Coach", bindUser2CoachHandler)
 
 	mux.HandleFunc("/api/updateCoach", UpdateCoachHandler)
 
+	// 数据统计平台
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
 
 	mux.HandleFunc("/api/getAllPaidPackage", GetAllPaidPackageHandler)
+
+	mux.HandleFunc("/api/getAllUserWithBindPhone", GetAllUserWithBindPhoneHandler)
+
+	mux.HandleFunc("/api/getAllTrailPackage", GetAllTrailPackageHandler)
+
+	//mux.HandleFunc("/api/login", LoginHandler)
 
 	autoScanCoachPersonalPageData()
 
