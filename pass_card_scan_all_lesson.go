@@ -129,10 +129,10 @@ func sendPassCardLessonRemindMsg(uid int64, stLessonModel pass_card_model.Lesson
 		MiniprogramState: os.Getenv("MiniprogramState"),
 		Lang:             "zh_CN",
 		Data: map[string]comm.MsgDataField{
-			"thing2":  {Value: stGymModel.LocName},                 //门店
-			"time3":   {Value: t.Format("2006年01月02日 15:04")},   //预约上课时间
-			"number4": {Value: remainingMinutesStr},                //剩余分钟
-			"thing5":  {Value: "您的锻炼预约即将开始，请准时前往~"}, //温馨提示
+			"thing2":  {Value: stGymModel.LocName},            //门店
+			"time3":   {Value: t.Format("2006年01月02日 15:04")}, //预约上课时间
+			"number4": {Value: remainingMinutesStr},           //剩余分钟
+			"thing5":  {Value: "您的锻炼预约即将开始，请准时前往~"},           //温馨提示
 		},
 	}
 	err = comm.SendMsg2User(uid, stWxSendMsg2UserReq)
@@ -166,7 +166,7 @@ func sendWriteOffSuccMsg(uid int64, stLessonModel pass_card_model.LessonModel) {
 		MiniprogramState: os.Getenv("MiniprogramState"),
 		Lang:             "zh_CN",
 		Data: map[string]comm.MsgDataField{
-			"thing6": {Value: stGymModel.LocName},                  //门店
+			"thing6": {Value: stGymModel.LocName},               //门店
 			"time15": {Value: t.Format("2006年01月02日 15:04")},    //预约上课时间
 			"time5":  {Value: tNow.Format("2006年01月02日 15:04")}, //核销时间
 		},

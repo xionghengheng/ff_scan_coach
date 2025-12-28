@@ -47,6 +47,8 @@ func main() {
 
 	mux.HandleFunc("/api/updateCoach", UpdateCoachHandler)
 
+	mux.HandleFunc("/api/getAllGymList", GetAllGymListHandler)
+
 	// 数据统计平台
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
 
