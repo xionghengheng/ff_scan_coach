@@ -51,7 +51,7 @@ func handlePassCardLessonMissed() {
 		}
 
 		mapUpdates := make(map[string]interface{})
-		mapUpdates["status"] = pass_card_model.En_LessonStatus_Completed
+		mapUpdates["status"] = pass_card_model.En_LessonStatus_Missed
 		mapUpdates["update_ts"] = nowTs
 		err = pass_card_dao.ImpPassCardLesson.UpdateLesson(v.Uid, v.LessonID, mapUpdates)
 		if err != nil {
