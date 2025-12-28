@@ -100,6 +100,11 @@ func GetAllGymListHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 构建全量健身房列表
 	for _, gymInfo := range mapGym {
+		gymInfo.HeaderImage1 = convertCloudUrlToHttps(gymInfo.HeaderImage1)
+		gymInfo.HeaderImage2 = convertCloudUrlToHttps(gymInfo.HeaderImage2)
+		gymInfo.HeaderImage3 = convertCloudUrlToHttps(gymInfo.HeaderImage3)
+		gymInfo.HeaderImage4 = convertCloudUrlToHttps(gymInfo.HeaderImage4)
+		gymInfo.LocationGuideImage = convertCloudUrlToHttps(gymInfo.LocationGuideImage)
 		rsp.VecAllGym = append(rsp.VecAllGym, gymInfo)
 	}
 
