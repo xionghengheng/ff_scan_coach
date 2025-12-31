@@ -74,9 +74,7 @@ func main() {
 	}
 
 	// 通卡
-	if !comm.IsProd() {
-		autoScanPassCardAllLesson()
-	}
+	autoScanPassCardAllLesson()
 
 	if err := http.ListenAndServe(":80", handler); err != nil {
 		log.Fatalf("服务器启动失败: %v", err)
