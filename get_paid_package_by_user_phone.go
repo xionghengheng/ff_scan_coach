@@ -165,7 +165,16 @@ func GetPaidPackageByUserPhoneHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 转换数据格式
 	for _, v := range vecPayCoursePackageModel {
-		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym))
+
+		vecPaymentOrderModel, err := dao.ImpPaymentOrder.GetOrderByPackageId(v.Uid, v.PackageID)
+		if err != nil || len(vecPaymentOrderModel) == 0 {
+			Printf("GetPaidPackageByUserPhoneHandler GetUserByPhone err, err:%+v PhoneNumber:%s\n", err, req.PhoneNumber)
+			continue
+		}
+
+		item := ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym)
+		item.WeixinPayOrderId = vecPaymentOrderModel[0].OrderID
+		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, item)
 	}
 
 	rsp.Code = 0

@@ -21,24 +21,25 @@ type GetAllPaidPackageRsp struct {
 }
 
 type PaidPackageItem struct {
-	Uid             int64  `json:"uid"`               // 用户id
-	UserName        string `json:"user_name"`         // 用户名称
-	PhoneNumber     string `json:"phone_number"`      // 手机号
-	PackageID       string `json:"package_id"`        // 课包的唯一标识符（用户id_获取课包的时间戳）
-	GymId           int    `json:"gym_id"`            // 场地id
-	GymName         string `json:"gym_name"`          // 场地id
-	CourseId        int    `json:"course_id"`         // 课程id
-	CourseName      string `json:"course_name"`       // 场地名称
-	CoachId         int    `json:"coach_id"`          // 教练id
-	CoachName       string `json:"coach_name"`        // 教练名称
-	Ts              int64  `json:"ts"`                // 获得课包的时间戳
-	TotalCnt        int    `json:"total_cnt"`         // 课包中总的课程次数
-	RemainCnt       int    `json:"remain_cnt"`        // 课包中剩余的课程次数
-	Price           int    `json:"price"`             // 价格
-	LastLessonTs    int64  `json:"last_lesson_ts"`    // 上次约课时间
-	ChangeCoachTs   int64  `json:"change_coach_ts"`   // 更换教练的时间戳
-	RefundTs        int64  `json:"refund_ts"`         // 发生退款的时间
-	RefundLessonCnt int    `json:"refund_lesson_cnt"` // 退款课程数
+	Uid              int64  `json:"uid"`                 // 用户id
+	UserName         string `json:"user_name"`           // 用户名称
+	PhoneNumber      string `json:"phone_number"`        // 手机号
+	PackageID        string `json:"package_id"`          // 课包的唯一标识符（用户id_获取课包的时间戳）
+	GymId            int    `json:"gym_id"`              // 场地id
+	GymName          string `json:"gym_name"`            // 场地id
+	CourseId         int    `json:"course_id"`           // 课程id
+	CourseName       string `json:"course_name"`         // 场地名称
+	CoachId          int    `json:"coach_id"`            // 教练id
+	CoachName        string `json:"coach_name"`          // 教练名称
+	Ts               int64  `json:"ts"`                  // 获得课包的时间戳
+	TotalCnt         int    `json:"total_cnt"`           // 课包中总的课程次数
+	RemainCnt        int    `json:"remain_cnt"`          // 课包中剩余的课程次数
+	Price            int    `json:"price"`               // 价格
+	LastLessonTs     int64  `json:"last_lesson_ts"`      // 上次约课时间
+	ChangeCoachTs    int64  `json:"change_coach_ts"`     // 更换教练的时间戳
+	RefundTs         int64  `json:"refund_ts"`           // 发生退款的时间
+	RefundLessonCnt  int    `json:"refund_lesson_cnt"`   // 退款课程数
+	WeixinPayOrderId string `json:"weixin_pay_order_id"` // 微信支付账单id
 }
 
 func getGetAllPaidPackageReq(r *http.Request) (GetAllPaidPackageReq, error) {
