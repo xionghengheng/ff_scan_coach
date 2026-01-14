@@ -34,7 +34,7 @@ type PaidPackageItem struct {
 	Ts               int64  `json:"ts"`                  // 获得课包的时间戳
 	TotalCnt         int    `json:"total_cnt"`           // 课包中总的课程次数
 	RemainCnt        int    `json:"remain_cnt"`          // 课包中剩余的课程次数
-	Price            int    `json:"price"`               // 价格
+	Price            int    `json:"price"`               // 单次课的价格
 	LastLessonTs     int64  `json:"last_lesson_ts"`      // 上次约课时间
 	ChangeCoachTs    int64  `json:"change_coach_ts"`     // 更换教练的时间戳
 	RefundTs         int64  `json:"refund_ts"`           // 发生退款的时间

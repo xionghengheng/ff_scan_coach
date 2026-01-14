@@ -53,6 +53,9 @@ func main() {
 	mux.HandleFunc("/api/getPaidPackageByUserPhone", GetPaidPackageByUserPhoneHandler)
 	mux.HandleFunc("/api/refundPackage", RefundPackagePhoneHandler)
 
+	// 获取教练的用户画像
+	mux.HandleFunc("/api/getCoachProfile", GetCoachProfileHandler)
+
 	// ----------------------------数据统计平台----------------------------//
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
 
