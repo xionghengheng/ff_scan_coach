@@ -174,6 +174,7 @@ func GetPaidPackageByUserPhoneHandler(w http.ResponseWriter, r *http.Request) {
 
 		item := ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym)
 		item.WeixinPayOrderId = vecPaymentOrderModel[0].OrderID
+		item.PayPice = vecPaymentOrderModel[0].Price
 		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, item)
 	}
 

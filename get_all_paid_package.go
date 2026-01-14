@@ -40,6 +40,7 @@ type PaidPackageItem struct {
 	RefundTs         int64  `json:"refund_ts"`           // 发生退款的时间
 	RefundLessonCnt  int    `json:"refund_lesson_cnt"`   // 退款课程数
 	WeixinPayOrderId string `json:"weixin_pay_order_id"` // 微信支付账单id
+	PayPice          int    `json:"pay_pice"`            // 微信付款金额
 }
 
 func getGetAllPaidPackageReq(r *http.Request) (GetAllPaidPackageReq, error) {
