@@ -51,6 +51,7 @@ func main() {
 
 	// 退费相关
 	mux.HandleFunc("/api/getPaidPackageByUserPhone", GetPaidPackageByUserPhoneHandler)
+	mux.HandleFunc("/api/refundPackage", RefundPackagePhoneHandler)
 
 	// ----------------------------数据统计平台----------------------------//
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
