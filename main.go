@@ -40,7 +40,7 @@ func main() {
 	mux.HandleFunc("/api/getUvPvStatistic", GetUvPvStatisticHandler)
 
 	//------------------ 离线数据管理平台相关接口 -------------------------//
-	// 教练信息管理平台
+	// ----------------------------教练信息管理平台----------------------------//
 	mux.HandleFunc("/api/getAllCoachList", GetAllCoachListHandler)
 
 	mux.HandleFunc("/api/bindUser2Coach", bindUser2CoachHandler)
@@ -49,7 +49,10 @@ func main() {
 
 	mux.HandleFunc("/api/getAllGymList", GetAllGymListHandler)
 
-	// 数据统计平台
+	// 退费相关
+	mux.HandleFunc("/api/getPaidPackageByUserPhone", GetPaidPackageByUserPhoneHandler)
+
+	// ----------------------------数据统计平台----------------------------//
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
 
 	mux.HandleFunc("/api/getAllPaidPackage", GetAllPaidPackageHandler)
