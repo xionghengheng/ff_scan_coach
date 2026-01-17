@@ -38,6 +38,14 @@ type CoachProfileItem struct {
 	MonthSalesRevenue     int    `json:"month_sales_revenue"`       // 近1个月付费课包的销售额
 	ActiveStatus          string `json:"active_status"`             // 教练活跃状态
 	Last30DaysLessonCount int    `json:"last_30_days_lesson_count"` // 近30天核销课程数
+
+	// 近30天新增指标、超时率、改课率、训练总结率
+	Last30DaysOvertimeCount   int    `json:"last_30_days_overtime_count"`   // 近30天超时核销数
+	OvertimeRate              string `json:"overtime_rate"`                 // 超时率（超时核销课数/总课程数）
+	Last30DaysRescheduleCount int    `json:"last_30_days_reschedule_count"` // 近30天系统改课数
+	RescheduleRate            string `json:"reschedule_rate"`               // 改课率（改课次数/预约课程总数）
+	Last30DaysSummaryCount    int    `json:"last_30_days_summary_count"`    // 近30天训练总结数
+	SummaryRate               string `json:"summary_rate"`                  // 训练总结率（填写训练总结数/近30天实际核销上课数）
 }
 
 type GetCoachProfileRsp struct {
@@ -274,8 +282,17 @@ func buildCoachProfile(
 		calculatePackageStats(coach.CoachID, vecAllPackageModel, monthBegTs)
 
 	// 统计课程相关数据
-	profile.TotalCommentCount, profile.MonthLessonCount, profile.Last30DaysLessonCount =
-		calculateLessonStats(coach.CoachID, vecAllSingleLesson, last30DaysBegTs, monthBegTs)
+	lessonStats := calculateLessonStats(coach.CoachID, vecAllSingleLesson, last30DaysBegTs, monthBegTs)
+	profile.TotalCommentCount = lessonStats.TotalCommentCount
+	profile.MonthLessonCount = lessonStats.MonthLessonCount
+	profile.Last30DaysLessonCount = lessonStats.Last30DaysWriteOffLessonCount
+
+	profile.Last30DaysOvertimeCount = lessonStats.Last30DaysOvertimeCount
+	profile.OvertimeRate = lessonStats.OvertimeRate
+	profile.Last30DaysRescheduleCount = lessonStats.Last30DaysRescheduleCount
+	profile.RescheduleRate = lessonStats.RescheduleRate
+	profile.Last30DaysSummaryCount = lessonStats.Last30DaysSummaryCount
+	profile.SummaryRate = lessonStats.SummaryRate
 
 	// 判断教练活跃状态
 	profile.ActiveStatus = calculateActiveStatus(profile.Last30DaysLessonCount)
@@ -338,13 +355,33 @@ func calculatePackageStats(
 	return
 }
 
+// LessonStatsResult 课程统计结果
+type LessonStatsResult struct {
+	TotalCommentCount             int    // 用户累计评价数（所有有评价内容的课程数）
+	MonthLessonCount              int    // 近1个月付费课包的消课量（本月核销的付费课包课程数）
+	Last30DaysWriteOffLessonCount int    // 近30天实际核销上课数（已完成状态且核销时间在近30天内）
+	Last30DaysOvertimeCount       int    // 近30天超时核销数（核销时间超过预约结束时间2小时以上的课程数）
+	OvertimeRate                  string // 超时率 = 超时核销课数 / 近30天总课程数 * 100%
+	Last30DaysRescheduleCount     int    // 近30天系统改课数（教练主动取消用户预约的课程数）
+	RescheduleRate                string // 改课率 = 改课次数 / 近30天预约课程总数 * 100%
+	Last30DaysSummaryCount        int    // 近30天训练总结数（近30天核销课程中填写了训练总结的数量）
+	SummaryRate                   string // 训练总结率 = 填写训练总结数 / 近30天实际核销上课数 * 100%
+}
+
 // 计算课程相关统计数据
 func calculateLessonStats(
 	coachID int,
 	vecAllSingleLesson []model.CoursePackageSingleLessonModel,
 	last30DaysBegTs int64,
 	monthBegTs int64,
-) (totalCommentCount int, monthLessonCount int, last30DaysLessonCount int) {
+) LessonStatsResult {
+	result := LessonStatsResult{}
+
+	// 近30天预约课程总数（用于计算改课率）
+	var last30DaysBookedCount int
+	// 近30天总课程数（用于计算超时率）
+	var last30DaysTotalLessonCount int
+
 	for _, lesson := range vecAllSingleLesson {
 		if lesson.CoachId != coachID {
 			continue
@@ -352,25 +389,72 @@ func calculateLessonStats(
 
 		// 统计评价数
 		if len(lesson.CommentContent) > 0 {
-			totalCommentCount++
+			result.TotalCommentCount++
+		}
+
+		// 近30天的课程统计
+		if lesson.CreateTs >= last30DaysBegTs {
+			// 统计近30天预约课程总数（用户主动预约的课程）
+			last30DaysBookedCount++
+
+			// 统计近30天改课数（教练主动取消用户预约的课程）
+			if lesson.Status == model.En_LessonStatusCanceled && lesson.CancelByCoach {
+				result.Last30DaysRescheduleCount++
+			}
 		}
 
 		// 只统计已完成的课程
 		if lesson.Status == model.En_LessonStatusCompleted {
 			// 统计近30天核销课程数
 			if lesson.WriteOffTs >= last30DaysBegTs {
-				last30DaysLessonCount++
+				result.Last30DaysWriteOffLessonCount++
+				last30DaysTotalLessonCount++
+
+				// 统计超时核销数（预约时间2小时后核销记为超时）
+				// 超时定义：用户具体预约时间的2小时内核销记为正常，超过2小时核销记为超时
+				if lesson.ScheduleEndTs > 0 && lesson.WriteOffTs > lesson.ScheduleEndTs+2*3600 {
+					result.Last30DaysOvertimeCount++
+				}
+
+				// 统计训练总结数（填写了训练总结的课程）
+				if len(lesson.TrainContent) > 0 {
+					result.Last30DaysSummaryCount++
+				}
 			}
 
 			// 统计近1个月付费课包的消课量
 			_, _, packageType := comm.ParseCoursePackageId(lesson.PackageID)
 			if packageType == model.Enum_PackageType_PaidPackage && lesson.WriteOffTs >= monthBegTs {
-				monthLessonCount++
+				result.MonthLessonCount++
 			}
 		}
 	}
 
-	return
+	// 计算超时率（超时核销课数/近30天总课程数）
+	if last30DaysTotalLessonCount > 0 {
+		overtimeRate := float64(result.Last30DaysOvertimeCount) / float64(last30DaysTotalLessonCount) * 100
+		result.OvertimeRate = fmt.Sprintf("%.2f%%", overtimeRate)
+	} else {
+		result.OvertimeRate = "0.00%"
+	}
+
+	// 计算改课率（改课次数/预约课程总数）
+	if last30DaysBookedCount > 0 {
+		rescheduleRate := float64(result.Last30DaysRescheduleCount) / float64(last30DaysBookedCount) * 100
+		result.RescheduleRate = fmt.Sprintf("%.2f%%", rescheduleRate)
+	} else {
+		result.RescheduleRate = "0.00%"
+	}
+
+	// 计算训练总结率（填写训练总结数/近30天实际核销上课数）
+	if result.Last30DaysWriteOffLessonCount > 0 {
+		summaryRate := float64(result.Last30DaysSummaryCount) / float64(result.Last30DaysWriteOffLessonCount) * 100
+		result.SummaryRate = fmt.Sprintf("%.2f%%", summaryRate)
+	} else {
+		result.SummaryRate = "0.00%"
+	}
+
+	return result
 }
 
 // 计算教练活跃状态
