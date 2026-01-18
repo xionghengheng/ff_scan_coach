@@ -37,6 +37,14 @@ github.com/xionghengheng/ff_plib v0.0.0-20260117145425-d9c642cca523 h1:PeXvzPa3m
 github.com/xionghengheng/ff_plib v0.0.0-20260117145425-d9c642cca523/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
 github.com/xionghengheng/ff_plib v0.0.0-20260117145542-8d3811408d62 h1:U1k4BqV3TdApAOYe95pQIqfB+N3ZUUQYb5ndbTCbVKc=
 github.com/xionghengheng/ff_plib v0.0.0-20260117145542-8d3811408d62/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
+github.com/xionghengheng/ff_plib v0.0.0-20260118145201-462912cdf016 h1:+MhMx79vo7RqR0FIgmz3DZrhpzcjLgDqA+GBnxtz5ro=
+github.com/xionghengheng/ff_plib v0.0.0-20260118145201-462912cdf016/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
+github.com/xionghengheng/ff_plib v0.0.0-20260118151819-1bdf1c3c5f11 h1:gPW1TC4pjityCgt6ZQ/uRezwAnwqfS0LmYqJfixbmQY=
+github.com/xionghengheng/ff_plib v0.0.0-20260118151819-1bdf1c3c5f11/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
+github.com/xionghengheng/ff_plib v0.0.0-20260118152441-b52e22f5a080 h1:KzcWDnuf1Y3TPDg3sSpSPqXS1WFD68F68pSHR+ikdDY=
+github.com/xionghengheng/ff_plib v0.0.0-20260118152441-b52e22f5a080/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
+github.com/xionghengheng/ff_plib v0.0.0-20260118152808-277afd3aae6a h1:M3EozQwuKT4mg/0v8JSR5kVPJGg3vJnKciJiL9XhZg0=
+github.com/xionghengheng/ff_plib v0.0.0-20260118152808-277afd3aae6a/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd h1:GGJVjV8waZKRHrgwvtH66z9ZGVurTD1MT0n1Bb+q4aM=

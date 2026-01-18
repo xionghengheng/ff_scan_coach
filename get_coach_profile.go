@@ -31,13 +31,13 @@ type CoachProfileItem struct {
 	PaidConversionRate string `json:"paid_conversion_rate"` // 付费转化率（暂时可空）
 	SecondRenewalRate  string `json:"second_renewal_rate"`  // 二次续费率
 	ThirdRenewalRate   string `json:"third_renewal_rate"`   // 三次续费率
-	MonthLessonCount   int    `json:"month_lesson_count"`   // 近1个月付费课包的消课量
 
 	// 单次课程相关
 	TotalCommentCount     int    `json:"total_comment_count"`       // 用户累计评价数
 	MonthSalesRevenue     int    `json:"month_sales_revenue"`       // 近1个月付费课包的销售额
 	ActiveStatus          string `json:"active_status"`             // 教练活跃状态
 	Last30DaysLessonCount int    `json:"last_30_days_lesson_count"` // 近30天核销课程数
+	MonthLessonCount      int    `json:"month_lesson_count"`        // 近1个月付费课包的消课量，自然月1号开始
 
 	// 近30天新增指标、超时率、改课率、训练总结率
 	Last30DaysOvertimeCount   int    `json:"last_30_days_overtime_count"`   // 近30天超时核销数

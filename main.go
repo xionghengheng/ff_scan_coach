@@ -56,6 +56,12 @@ func main() {
 	// 获取教练的用户画像
 	mux.HandleFunc("/api/getCoachProfile", GetCoachProfileHandler)
 
+	// ----------------------------预体验课管理----------------------------//
+	// 创建预体验课（顾问预先生成体验课信息）
+	mux.HandleFunc("/api/createPreTrialLesson", CreatePreTrialLessonHandler)
+	// 获取预体验课列表
+	mux.HandleFunc("/api/getPreTrialLessonList", GetPreTrialLessonListHandler)
+
 	// ----------------------------数据统计平台----------------------------//
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
 
