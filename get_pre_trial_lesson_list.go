@@ -13,9 +13,6 @@ import (
 
 // GetPreTrialLessonListReq 获取预体验课列表请求
 type GetPreTrialLessonListReq struct {
-	Status    int    `json:"status"`     // 状态筛选：-1全部，0待使用，1已使用，2已过期
-	CoachId   int    `json:"coach_id"`   // 教练ID筛选，0表示不筛选
-	CreatedBy string `json:"created_by"` // 创建人筛选，空表示不筛选
 }
 
 // GetPreTrialLessonListRsp 获取预体验课列表响应
@@ -48,9 +45,7 @@ type PreTrialLessonItem struct {
 
 // getGetPreTrialLessonListReq 解析请求参数
 func getGetPreTrialLessonListReq(r *http.Request) (GetPreTrialLessonListReq, error) {
-	req := GetPreTrialLessonListReq{
-		Status: -1, // 默认查询全部
-	}
+	req := GetPreTrialLessonListReq{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		return req, err
 	}
