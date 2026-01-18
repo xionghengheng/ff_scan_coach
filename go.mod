@@ -4,7 +4,7 @@ go 1.21
 
 require (
 	github.com/jinzhu/gorm v1.9.16 // indirect
-	github.com/xionghengheng/ff_plib v0.0.0-20260118152808-277afd3aae6a
+	github.com/xionghengheng/ff_plib v0.0.0-20260118155150-fe2bd5c447c4
 )
 
 require (
