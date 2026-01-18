@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 )
 
@@ -41,7 +42,8 @@ type PreTrialLessonItem struct {
 	Price         int    `json:"price"`           // 体验课价格（元）
 	CreatedBy     string `json:"created_by"`      // 创建人（顾问）
 	StatusText    string `json:"status_text"`     // 状态文本
-	CreatedAt     string `json:"created_at"`      // 创建时间
+	CreatedTs     string `json:"created_ts"`      // 创建时间
+	UpdateTs      string `json:"update_ts"`       // 更新时间
 }
 
 // getGetPreTrialLessonListReq 解析请求参数
@@ -123,6 +125,10 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 获取所有门店和教练信息，用于查询最新名称
+	mapGym, _ := comm.GetAllGym()
+	mapCoach, _ := comm.GetAllCoach()
+
 	// 转换为响应格式
 	rsp.List = make([]PreTrialLessonItem, 0, len(list))
 	for _, item := range list {
@@ -136,15 +142,25 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 			statusText = "已取消"
 		}
 
+		// 根据ID获取门店名称和教练名称
+		gymName := ""
+		if gymInfo, ok := mapGym[item.GymID]; ok {
+			gymName = gymInfo.LocName
+		}
+		coachName := ""
+		if coachInfo, ok := mapCoach[item.CoachID]; ok {
+			coachName = coachInfo.CoachName
+		}
+
 		rsp.List = append(rsp.List, PreTrialLessonItem{
 			Id:            item.ID,
 			LinkToken:     item.LinkToken,
 			UserPhone:     item.UserPhone,
 			TrainingNeed:  item.TrainingNeed,
 			GymId:         item.GymID,
-			GymName:       item.GymName,
+			GymName:       gymName,
 			CoachId:       item.CoachID,
-			CoachName:     item.CoachName,
+			CoachName:     coachName,
 			LessonDate:    time.Unix(item.LessonDate, 0).Format("2006-01-02"),
 			LessonTimeBeg: time.Unix(item.LessonTimeBeg, 0).Format("15:04"),
 			LessonTimeEnd: time.Unix(item.LessonTimeEnd, 0).Format("15:04"),
@@ -152,7 +168,8 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 			CreatedBy:     item.CreatedBy,
 			LinkStatus:    item.LinkStatus,
 			StatusText:    statusText,
-			CreatedAt:     time.Unix(item.CreatedTs, 0).Format("2006-01-02 15:04:05"),
+			CreatedTs:     time.Unix(item.CreatedTs, 0).Format("2006-01-02 15:04:05"),
+			UpdateTs:      time.Unix(item.UpdatedTs, 0).Format("2006-01-02 15:04:05"),
 		})
 	}
 
