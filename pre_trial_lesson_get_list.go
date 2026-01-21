@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/xionghengheng/ff_plib/comm"
@@ -13,6 +14,8 @@ import (
 
 // GetPreTrialLessonListReq 获取预体验课列表请求
 type GetPreTrialLessonListReq struct {
+	Passback string `json:"passback"`  // 翻页标记，首次请求传空字符串，后续传上次返回的passback
+	PageSize int    `json:"page_size"` // 每页数量
 }
 
 // GetPreTrialLessonListRsp 获取预体验课列表响应
@@ -20,6 +23,7 @@ type GetPreTrialLessonListRsp struct {
 	Code     int                  `json:"code"`
 	ErrorMsg string               `json:"errorMsg,omitempty"`
 	List     []PreTrialLessonItem `json:"list,omitempty"`
+	Passback string               `json:"passback"` // 下一页的翻页标记，为空字符串表示没有更多数据
 }
 
 // PreTrialLessonItem 预体验课列表项
@@ -111,14 +115,31 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 查询预体验课列表
-	list, err := dao.ImpPreTrailManage.GetTrailManageList(0, 1)
+	// 处理翻页参数，设置默认值
+	var offset int64
+	if len(req.Passback) > 0 {
+		offset, _ = strconv.ParseInt(req.Passback, 10, 64)
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	pageSize := req.PageSize
+	if pageSize <= 0 {
+		pageSize = 20 // 默认每页20条
+	}
+	if pageSize > 100 {
+		pageSize = 100 // 最大每页100条
+	}
+
+	// 查询预体验课列表（passback作为offset使用）
+	list, err := dao.ImpPreTrailManage.GetTrailManageList(int(offset), pageSize)
 	if err != nil {
 		rsp.Code = -2002
 		rsp.ErrorMsg = fmt.Sprintf("查询预体验课列表失败: %v", err)
 		Printf("GetPreTrialLessonListHandler GetPreTrialLessonList err:%+v\n", err)
 		return
 	}
+	Printf("GetTrailManageList succ, offset:%d pageSize:%d list:%+v\n", offset, pageSize, list)
 
 	// 获取所有门店和教练信息，用于查询最新名称
 	mapGym, _ := comm.GetAllGym()
@@ -168,6 +189,14 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 
+	// 设置下一页的passback（当前offset + 返回数量）
+	// 如果返回数量小于pageSize，说明没有更多数据，passback设为空字符串
+	if len(list) >= pageSize {
+		rsp.Passback = strconv.FormatInt(offset+int64(len(list)), 10)
+	} else {
+		rsp.Passback = "" // 没有更多数据
+	}
+
 	rsp.Code = 0
-	Printf("GetPreTrialLessonListHandler success, count:%d\n", len(rsp.List))
+	Printf("GetPreTrialLessonListHandler success, count:%d passback:%s\n", len(rsp.List), rsp.Passback)
 }
