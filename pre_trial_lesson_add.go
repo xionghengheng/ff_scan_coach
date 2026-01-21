@@ -39,14 +39,6 @@ type CreatePreTrialLessonRspData struct {
 	CreatedAt   string `json:"created_at"`    // 创建时间
 }
 
-// 状态常量
-const (
-	PreTrialLessonStatusPending  = 0 // 待使用
-	PreTrialLessonStatusUsed     = 1 // 已使用
-	PreTrialLessonStatusExpired  = 2 // 已过期
-	PreTrialLessonStatusCanceled = 3 // 已取消
-)
-
 // 解析请求参数
 func getCreatePreTrialLessonReq(r *http.Request) (CreatePreTrialLessonReq, error) {
 	req := CreatePreTrialLessonReq{}
@@ -111,7 +103,7 @@ func CreatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 		LessonTimeEnd: req.LessonTimeEnd,
 		Price:         req.Price,
 		CreatedBy:     req.CreatedBy,
-		LinkStatus:    PreTrialLessonStatusPending, // 状态：待使用
+		LinkStatus:    model.Enum_Link_Status_Pending, // 状态：待使用
 		CreatedTs:     nowTs,
 		UpdatedTs:     nowTs,
 	}
