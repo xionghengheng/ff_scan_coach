@@ -18,6 +18,22 @@ const (
 	LinkExpireSeconds = 24 * 60 * 60
 )
 
+// GetRealLinkStatus 获取预体验课的实际链接状态
+// 如果是待使用状态且已超过过期时间，则返回已过期状态
+// linkStatus: 数据库中存储的链接状态
+// createdTs: 记录创建时间戳
+// 返回: 实际的链接状态
+func GetRealLinkStatus(linkStatus int, createdTs int64) int {
+	if linkStatus == model.Enum_Link_Status_Pending {
+		// 检查是否已过期（创建时间超过24小时）
+		expireTime := createdTs + LinkExpireSeconds
+		if time.Now().Unix() > expireTime {
+			return model.Enum_Link_Status_Expired
+		}
+	}
+	return linkStatus
+}
+
 // GetPreTrialLessonListReq 获取预体验课列表请求
 type GetPreTrialLessonListReq struct {
 	Passback string `json:"passback"`  // 翻页标记，首次请求传空字符串，后续传上次返回的passback
@@ -154,15 +170,8 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 	// 转换为响应格式
 	rsp.List = make([]PreTrialLessonItem, 0, len(list))
 	for _, item := range list {
-		// 实时计算过期状态：如果是待使用状态且创建时间超过24小时，则标记为已过期
-		linkStatus := item.LinkStatus
-		if linkStatus == model.Enum_Link_Status_Pending {
-			// 默认过期时间24小时
-			expireTime := item.CreatedTs + LinkExpireSeconds
-			if time.Now().Unix() > expireTime {
-				linkStatus = model.Enum_Link_Status_Expired
-			}
-		}
+		// 实时计算过期状态
+		linkStatus := GetRealLinkStatus(item.LinkStatus, item.CreatedTs)
 
 		statusText := "待使用"
 		switch linkStatus {

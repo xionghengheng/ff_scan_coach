@@ -61,6 +61,8 @@ func main() {
 	mux.HandleFunc("/api/createPreTrialLesson", CreatePreTrialLessonHandler)
 	// 获取预体验课列表
 	mux.HandleFunc("/api/getPreTrialLessonList", GetPreTrialLessonListHandler)
+	// 更新预体验课
+	mux.HandleFunc("/api/updatePreTrialLesson", UpdatePreTrialLessonHandler)
 
 	// ----------------------------数据统计平台----------------------------//
 	mux.HandleFunc("/api/getAllPaidLesson", GetAllPaidLessonHandler)
