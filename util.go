@@ -115,9 +115,9 @@ func ValidateAdminAuth(r *http.Request) AdminAuthResult {
 const aesSecretKey = "FF_TRIAL_KEY_16!"
 
 // 生成H5链接token（包含记录ID，使用AES加密+Base64编码）
-func generateH5LinkToken(recordId int64, coachId int, createTs int64) string {
+func generateH5LinkToken(recordId int64, createTs int64) string {
 	// 使用记录ID+教练ID+时间戳生成原始数据
-	data := fmt.Sprintf("%d_%d_%d", recordId, coachId, createTs)
+	data := fmt.Sprintf("%d_%d", recordId, createTs)
 
 	// AES加密
 	encrypted, err := aesEncrypt([]byte(data), []byte(aesSecretKey))
@@ -189,25 +189,25 @@ func aesDecrypt(cipherText, key []byte) ([]byte, error) {
 }
 
 // 解密H5链接token，返回recordId, coachId, createTs
-func decryptH5LinkToken(token string) (recordId int64, coachId int, createTs int64, err error) {
+func decryptH5LinkToken(token string) (recordId int64, createTs int64, err error) {
 	// Base64解码
 	cipherText, err := base64.URLEncoding.DecodeString(token)
 	if err != nil {
-		return 0, 0, 0, fmt.Errorf("Base64解码失败: %v", err)
+		return 0, 0, fmt.Errorf("Base64解码失败: %v", err)
 	}
 
 	// AES解密
 	plainText, err := aesDecrypt(cipherText, []byte(aesSecretKey))
 	if err != nil {
-		return 0, 0, 0, fmt.Errorf("AES解密失败: %v", err)
+		return 0, 0, fmt.Errorf("AES解密失败: %v", err)
 	}
 
 	// 解析原始数据: recordId_coachId_createTs
-	var rId, cId, ts int64
-	_, err = fmt.Sscanf(string(plainText), "%d_%d_%d", &rId, &cId, &ts)
+	var rId, ts int64
+	_, err = fmt.Sscanf(string(plainText), "%d_%d_%d", &rId, &ts)
 	if err != nil {
-		return 0, 0, 0, fmt.Errorf("解析数据失败: %v", err)
+		return 0, 0, fmt.Errorf("解析数据失败: %v", err)
 	}
 
-	return rId, int(cId), ts, nil
+	return rId, ts, nil
 }
