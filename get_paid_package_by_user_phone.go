@@ -10,6 +10,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
+	"github.com/xionghengheng/ff_plib/db/model"
 )
 
 type GetPaidPackageByUserPhoneReq struct {
@@ -172,9 +173,11 @@ func GetPaidPackageByUserPhoneHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		item := ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym)
+		mapPackageId2Order := make(map[string]model.PaymentOrderModel)
+		mapPackageId2Order[v.PackageID] = vecPaymentOrderModel[0]
+
+		item := ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Order)
 		item.WeixinPayOrderId = vecPaymentOrderModel[0].OrderID
-		item.PayPice = vecPaymentOrderModel[0].Price
 		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, item)
 	}
 

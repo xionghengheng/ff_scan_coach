@@ -40,7 +40,6 @@ type PaidPackageItem struct {
 	RefundTs         int64  `json:"refund_ts"`           // 发生退款的时间
 	RefundLessonCnt  int    `json:"refund_lesson_cnt"`   // 退款课程数
 	WeixinPayOrderId string `json:"weixin_pay_order_id"` // 微信支付账单id
-	PayPice          int    `json:"pay_pice"`            // 微信付款金额
 	PayPrice         int64  `json:"pay_price"`           // 折前价格，单位元
 	RealPayPrice     int64  `json:"real_pay_price"`      // 实际支付的价格，单位元
 }
