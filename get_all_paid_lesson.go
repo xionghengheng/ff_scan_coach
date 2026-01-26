@@ -32,7 +32,7 @@ type PaidLessonItem struct {
 	GymName          string `json:"gym_name"`           // 场地id
 	CourseId         int    `json:"course_id"`          // 课程id
 	CourseName       string `json:"course_name"`        // 课程名称
-	CoursePrice      int    `json:"course_price"`       // 课程价格
+	CoursePrice      int    `json:"course_price"`       // 课程价格（由于价格会变动，使用用户付款时的价格换算单次课价格）
 	CoachId          int    `json:"coach_id"`           // 教练id
 	CoachName        string `json:"coach_name"`         // 教练名称
 	CreateTs         int64  `json:"create_ts"`          // 记录生成时间，发起预约的时间
@@ -44,6 +44,8 @@ type PaidLessonItem struct {
 	CancelByCoach    bool   `json:"cancel_by_coach"`    // 是否是教练取消
 	ScheduledByCoach bool   `json:"scheduled_by_coach"` // 是否为教练排课
 	WriteOffTs       int64  `json:"write_off_ts"`       // 核销时间
+	PayPrice         int64  `json:"pay_price"`          // 折前价格，单位元
+	RealPayPrice     int64  `json:"real_pay_price"`     // 实际支付的价格，单位元
 }
 
 func getGetAllPaidLessonReq(r *http.Request) (GetAllPaidLessonReq, error) {
@@ -149,6 +151,27 @@ func GetAllPaidLessonHandler(w http.ResponseWriter, r *http.Request) {
 		vecAllSingleLesson = append(vecAllSingleLesson, tmpVecAllSingleLesson...)
 	}
 
+	// 获取所有订单，构建PackageID到订单的映射
+	mapPackageId2Order := make(map[string]model.PaymentOrderModel)
+	var orderTurnPageTs int64
+	for i := 0; i <= 5000; i++ {
+		vecPaymentOrder, err := dao.ImpPaymentOrder.GetAllOrderList(orderTurnPageTs)
+		if err != nil {
+			rsp.Code = -912
+			rsp.ErrorMsg = err.Error()
+			Printf("GetAllOrderList err, i:%d err:%+v\n", i, err)
+			return
+		}
+		if len(vecPaymentOrder) == 0 {
+			Printf("GetAllOrderList empty, i:%d mapPackageId2Order.len:%d\n", i, len(mapPackageId2Order))
+			break
+		}
+		orderTurnPageTs = vecPaymentOrder[len(vecPaymentOrder)-1].OrderTime
+		for _, order := range vecPaymentOrder {
+			mapPackageId2Order[order.PackageID] = order
+		}
+	}
+
 	mapAllCoach, err := comm.GetAllCoach()
 	if err != nil {
 		rsp.Code = -911
@@ -181,7 +204,7 @@ func GetAllPaidLessonHandler(w http.ResponseWriter, r *http.Request) {
 		if mapAllCoach[v.CoachId].BTestCoach {
 			continue
 		}
-		rsp.VecPaidLessonItem = append(rsp.VecPaidLessonItem, ConvertCourseItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapAllPaidPackageModel))
+		rsp.VecPaidLessonItem = append(rsp.VecPaidLessonItem, ConvertCourseItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapAllPaidPackageModel, mapPackageId2Order))
 	}
 	return
 }
@@ -192,12 +215,28 @@ func ConvertCourseItemModel2PaidRspItem(item model.CoursePackageSingleLessonMode
 	mapALlCourseModel map[int]model.CourseModel,
 	mapAllUserModel map[int64]model.UserInfoModel,
 	mapGym map[int]model.GymInfoModel,
-	mapAllPaidPackageModel map[string]model.CoursePackageModel) PaidLessonItem {
+	mapAllPaidPackageModel map[string]model.CoursePackageModel,
+	mapPackageId2Order map[string]model.PaymentOrderModel) PaidLessonItem {
 
 	strPhone := ""
 	phone := mapAllUserModel[item.Uid].PhoneNumber
 	if phone != nil {
 		strPhone = *phone
+	}
+
+	// 获取订单信息
+	var payPrice int64
+	var realPayPrice int64
+	if order, ok := mapPackageId2Order[item.PackageID]; ok {
+		payPrice = int64(order.Price + order.DiscountAmount)
+		realPayPrice = int64(order.Price)
+	}
+
+	// 基于订单原价换算真实的单次课价格
+	totalCnt := mapAllPaidPackageModel[item.PackageID].TotalCnt
+	coursePrice := 0
+	if totalCnt > 0 && payPrice > 0 {
+		coursePrice = int(payPrice) / totalCnt
 	}
 
 	return PaidLessonItem{
@@ -206,13 +245,13 @@ func ConvertCourseItemModel2PaidRspItem(item model.CoursePackageSingleLessonMode
 		PhoneNumber:      strPhone,
 		PackageID:        item.PackageID,
 		LessonID:         item.LessonID,
-		TotalCnt:         mapAllPaidPackageModel[item.PackageID].TotalCnt,
+		TotalCnt:         totalCnt,
 		RemainCnt:        mapAllPaidPackageModel[item.PackageID].RemainCnt,
 		GymId:            mapGym[item.GymId].GymID,
 		GymName:          mapGym[item.GymId].LocName,
 		CourseId:         item.CourseID,
 		CourseName:       mapALlCourseModel[item.CourseID].Name,
-		CoursePrice:      mapALlCourseModel[item.CourseID].Price,
+		CoursePrice:      coursePrice,
 		CoachId:          item.CoachId,
 		CoachName:        mapAllCoach[item.CoachId].CoachName,
 		CreateTs:         item.CreateTs,
@@ -224,5 +263,7 @@ func ConvertCourseItemModel2PaidRspItem(item model.CoursePackageSingleLessonMode
 		CancelByCoach:    item.CancelByCoach,
 		ScheduledByCoach: item.ScheduledByCoach,
 		WriteOffTs:       item.WriteOffTs,
+		PayPrice:         payPrice,
+		RealPayPrice:     realPayPrice,
 	}
 }
