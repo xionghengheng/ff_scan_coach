@@ -39,6 +39,7 @@ type PaidPackageItem struct {
 	ChangeCoachTs    int64  `json:"change_coach_ts"`     // 更换教练的时间戳
 	RefundTs         int64  `json:"refund_ts"`           // 发生退款的时间
 	RefundLessonCnt  int    `json:"refund_lesson_cnt"`   // 退款课程数
+	RefundAmount     int    `json:"refund_amount"`       // 退款金额，单位元
 	WeixinPayOrderId string `json:"weixin_pay_order_id"` // 微信支付账单id
 	PayPrice         int64  `json:"pay_price"`           // 折前价格，单位元
 	RealPayPrice     int64  `json:"real_pay_price"`      // 实际支付的价格，单位元
@@ -232,6 +233,7 @@ func ConvertPackageItemModel2PaidRspItem(item model.CoursePackageModel,
 		ChangeCoachTs:   item.ChangeCoachTs,
 		RefundTs:        item.RefundTs,
 		RefundLessonCnt: item.RefundLessonCnt,
+		RefundAmount:    mapPackageId2Order[item.PackageID].RefundAmount / 100,
 		PayPrice:        payPrice,
 		RealPayPrice:    realPayPrice,
 	}
