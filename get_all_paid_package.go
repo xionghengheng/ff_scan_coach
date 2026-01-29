@@ -186,7 +186,11 @@ func GetAllPaidPackageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Orders)...)
 	}
-	return
+
+	// 按获得时间从大到小排序
+	sort.Slice(rsp.VecPaidPackageItem, func(i, j int) bool {
+		return rsp.VecPaidPackageItem[i].Ts > rsp.VecPaidPackageItem[j].Ts
+	})
 }
 
 // ConvertPackageItemModel2PaidRspItem 转换函数，每个订单（含续费）返回一个item
