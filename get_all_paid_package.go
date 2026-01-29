@@ -43,6 +43,7 @@ type PaidPackageItem struct {
 	WeixinPayOrderId string `json:"weixin_pay_order_id"` // 微信支付账单id
 	PayPrice         int64  `json:"pay_price"`           // 折前价格，单位元
 	RealPayPrice     int64  `json:"real_pay_price"`      // 实际支付的价格，单位元
+	RenewCnt         int    `json:"renew_cnt"`           // 续费次数
 }
 
 func getGetAllPaidPackageReq(r *http.Request) (GetAllPaidPackageReq, error) {
@@ -156,8 +157,8 @@ func GetAllPaidPackageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 获取所有订单，构建PackageID到订单的映射
-	mapPackageId2Order := make(map[string]model.PaymentOrderModel)
+	// 获取所有订单，构建PackageID到订单列表的映射（一个课包可能对应多个订单，续课时会新增订单）
+	mapPackageId2Orders := make(map[string][]model.PaymentOrderModel)
 	var orderTurnPageTs int64
 	for i := 0; i <= 5000; i++ {
 		vecPaymentOrder, err := dao.ImpPaymentOrder.GetAllOrderList(orderTurnPageTs)
@@ -168,12 +169,12 @@ func GetAllPaidPackageHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if len(vecPaymentOrder) == 0 {
-			Printf("GetAllOrderList empty, i:%d mapPackageId2Order.len:%d\n", i, len(mapPackageId2Order))
+			Printf("GetAllOrderList empty, i:%d mapPackageId2Orders.len:%d\n", i, len(mapPackageId2Orders))
 			break
 		}
 		orderTurnPageTs = vecPaymentOrder[len(vecPaymentOrder)-1].OrderTime
 		for _, order := range vecPaymentOrder {
-			mapPackageId2Order[order.PackageID] = order
+			mapPackageId2Orders[order.PackageID] = append(mapPackageId2Orders[order.PackageID], order)
 		}
 	}
 
@@ -181,7 +182,7 @@ func GetAllPaidPackageHandler(w http.ResponseWriter, r *http.Request) {
 		if mapAllCoach[v.CoachId].BTestCoach {
 			continue
 		}
-		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Order))
+		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Orders))
 	}
 	return
 }
@@ -192,7 +193,7 @@ func ConvertPackageItemModel2PaidRspItem(item model.CoursePackageModel,
 	mapALlCourseModel map[int]model.CourseModel,
 	mapAllUserModel map[int64]model.UserInfoModel,
 	mapGym map[int]model.GymInfoModel,
-	mapPackageId2Order map[string]model.PaymentOrderModel) PaidPackageItem {
+	mapPackageId2Orders map[string][]model.PaymentOrderModel) PaidPackageItem {
 
 	strPhone := ""
 	phone := mapAllUserModel[item.Uid].PhoneNumber
@@ -200,12 +201,21 @@ func ConvertPackageItemModel2PaidRspItem(item model.CoursePackageModel,
 		strPhone = *phone
 	}
 
-	// 获取订单信息
+	// 获取订单信息，累加所有订单的价格（一个课包可能有多个订单，续课时会新增订单）
 	var payPrice int64
 	var realPayPrice int64
-	if order, ok := mapPackageId2Order[item.PackageID]; ok {
-		payPrice = int64(order.Price + order.DiscountAmount)
-		realPayPrice = int64(order.Price)
+	var totalRefundAmount int
+	var renewCnt int
+	if orders, ok := mapPackageId2Orders[item.PackageID]; ok {
+		for _, order := range orders {
+			payPrice += int64(order.Price + order.DiscountAmount)
+			realPayPrice += int64(order.Price)
+			totalRefundAmount += order.RefundAmount
+		}
+		// 续费次数 = 订单数量 - 1（首次购买不算续费）
+		if len(orders) > 1 {
+			renewCnt = len(orders) - 1
+		}
 	}
 
 	// 基于订单原价换算真实的单次课价格
@@ -233,8 +243,9 @@ func ConvertPackageItemModel2PaidRspItem(item model.CoursePackageModel,
 		ChangeCoachTs:   item.ChangeCoachTs,
 		RefundTs:        item.RefundTs,
 		RefundLessonCnt: item.RefundLessonCnt,
-		RefundAmount:    mapPackageId2Order[item.PackageID].RefundAmount / 100,
+		RefundAmount:    totalRefundAmount / 100,
 		PayPrice:        payPrice,
 		RealPayPrice:    realPayPrice,
+		RenewCnt:        renewCnt,
 	}
 }
