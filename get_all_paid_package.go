@@ -184,13 +184,13 @@ func GetAllPaidPackageHandler(w http.ResponseWriter, r *http.Request) {
 		if mapAllCoach[v.CoachId].BTestCoach {
 			continue
 		}
-		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItemV2(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Orders)...)
+		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Orders)...)
 	}
 	return
 }
 
-// ConvertPackageItemModel2PaidRspItemV2 转换函数，每个订单（含续费）返回一个item
-func ConvertPackageItemModel2PaidRspItemV2(item model.CoursePackageModel,
+// ConvertPackageItemModel2PaidRspItem 转换函数，每个订单（含续费）返回一个item
+func ConvertPackageItemModel2PaidRspItem(item model.CoursePackageModel,
 	mapAllCoach map[int]model.CoachModel,
 	mapALlCourseModel map[int]model.CourseModel,
 	mapAllUserModel map[int64]model.UserInfoModel,
