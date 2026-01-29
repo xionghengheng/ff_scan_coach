@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"sort"
 
 	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
@@ -44,6 +45,7 @@ type PaidPackageItem struct {
 	PayPrice         int64  `json:"pay_price"`           // 折前价格，单位元
 	RealPayPrice     int64  `json:"real_pay_price"`      // 实际支付的价格，单位元
 	RenewCnt         int    `json:"renew_cnt"`           // 续费次数
+	IsRenew          bool   `json:"is_renew"`            // 是否为续费订单
 }
 
 func getGetAllPaidPackageReq(r *http.Request) (GetAllPaidPackageReq, error) {
@@ -182,18 +184,18 @@ func GetAllPaidPackageHandler(w http.ResponseWriter, r *http.Request) {
 		if mapAllCoach[v.CoachId].BTestCoach {
 			continue
 		}
-		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Orders))
+		rsp.VecPaidPackageItem = append(rsp.VecPaidPackageItem, ConvertPackageItemModel2PaidRspItemV2(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Orders)...)
 	}
 	return
 }
 
-// 转换函数
-func ConvertPackageItemModel2PaidRspItem(item model.CoursePackageModel,
+// ConvertPackageItemModel2PaidRspItemV2 转换函数，每个订单（含续费）返回一个item
+func ConvertPackageItemModel2PaidRspItemV2(item model.CoursePackageModel,
 	mapAllCoach map[int]model.CoachModel,
 	mapALlCourseModel map[int]model.CourseModel,
 	mapAllUserModel map[int64]model.UserInfoModel,
 	mapGym map[int]model.GymInfoModel,
-	mapPackageId2Orders map[string][]model.PaymentOrderModel) PaidPackageItem {
+	mapPackageId2Orders map[string][]model.PaymentOrderModel) []PaidPackageItem {
 
 	strPhone := ""
 	phone := mapAllUserModel[item.Uid].PhoneNumber
@@ -201,51 +203,74 @@ func ConvertPackageItemModel2PaidRspItem(item model.CoursePackageModel,
 		strPhone = *phone
 	}
 
-	// 获取订单信息，累加所有订单的价格（一个课包可能有多个订单，续课时会新增订单）
-	var payPrice int64
-	var realPayPrice int64
-	var totalRefundAmount int
-	var renewCnt int
-	if orders, ok := mapPackageId2Orders[item.PackageID]; ok {
-		for _, order := range orders {
-			payPrice += int64(order.Price + order.DiscountAmount)
-			realPayPrice += int64(order.Price)
-			totalRefundAmount += order.RefundAmount
-		}
-		// 续费次数 = 订单数量 - 1（首次购买不算续费）
-		if len(orders) > 1 {
-			renewCnt = len(orders) - 1
-		}
+	var result []PaidPackageItem
+
+	orders, ok := mapPackageId2Orders[item.PackageID]
+	if !ok || len(orders) == 0 {
+		// 没有订单时返回空
+		return result
 	}
 
-	// 基于订单原价换算真实的单次课价格
-	coursePrice := 0
-	if item.TotalCnt > 0 && payPrice > 0 {
-		coursePrice = int(payPrice) / item.TotalCnt
+	// 按订单时间升序排序，确保首次购买在前、续费在后
+	sort.Slice(orders, func(i, j int) bool {
+		return orders[i].OrderTime < orders[j].OrderTime
+	})
+
+	// 计算续费次数（订单数量 - 1）
+	renewCnt := 0
+	if len(orders) > 1 {
+		renewCnt = len(orders) - 1
 	}
 
-	return PaidPackageItem{
-		Uid:             item.Uid,
-		UserName:        mapAllUserModel[item.Uid].Nick,
-		PhoneNumber:     strPhone,
-		PackageID:       item.PackageID,
-		GymId:           mapGym[item.GymId].GymID,
-		GymName:         mapGym[item.GymId].LocName,
-		CourseId:        item.CourseId,
-		CourseName:      mapALlCourseModel[item.CourseId].Name,
-		CoachId:         item.CoachId,
-		CoachName:       mapAllCoach[item.CoachId].CoachName,
-		Ts:              item.Ts,
-		TotalCnt:        item.TotalCnt,
-		RemainCnt:       item.RemainCnt,
-		CoursePrice:     coursePrice,
-		LastLessonTs:    item.LastLessonTs,
-		ChangeCoachTs:   item.ChangeCoachTs,
-		RefundTs:        item.RefundTs,
-		RefundLessonCnt: item.RefundLessonCnt,
-		RefundAmount:    totalRefundAmount / 100,
-		PayPrice:        payPrice,
-		RealPayPrice:    realPayPrice,
-		RenewCnt:        renewCnt,
+	// 为每个订单生成一个item
+	for i, order := range orders {
+		// 是否为续费订单（第一个订单不是续费，时间最早的是首次购买）
+		isRenew := i > 0
+
+		// 本次订单的价格
+		payPrice := int64(order.Price + order.DiscountAmount)
+		realPayPrice := int64(order.Price)
+
+		// 基于本次订单价格换算单次课价格
+		coursePrice := 0
+		if order.CourseCnt > 0 && payPrice > 0 {
+			coursePrice = int(payPrice) / order.CourseCnt
+		}
+
+		// 续费订单的Ts用订单时间，首次购买用课包时间
+		ts := item.Ts
+		if isRenew {
+			ts = order.OrderTime
+		}
+
+		result = append(result, PaidPackageItem{
+			Uid:              item.Uid,
+			UserName:         mapAllUserModel[item.Uid].Nick,
+			PhoneNumber:      strPhone,
+			PackageID:        item.PackageID,
+			GymId:            mapGym[item.GymId].GymID,
+			GymName:          mapGym[item.GymId].LocName,
+			CourseId:         item.CourseId,
+			CourseName:       mapALlCourseModel[item.CourseId].Name,
+			CoachId:          item.CoachId,
+			CoachName:        mapAllCoach[item.CoachId].CoachName,
+			Ts:               ts,
+			TotalCnt:         item.TotalCnt,
+			RemainCnt:        item.RemainCnt,
+			CoursePrice:      coursePrice,
+			LastLessonTs:     item.LastLessonTs,
+			ChangeCoachTs:    item.ChangeCoachTs,
+			RefundTs:         item.RefundTs,
+			RefundLessonCnt:  item.RefundLessonCnt,
+			RefundAmount:     order.RefundAmount / 100,
+			WeixinPayOrderId: order.OrderID,
+			PayPrice:         payPrice,
+			RealPayPrice:     realPayPrice,
+			RenewCnt:         renewCnt,
+			IsRenew:          isRenew,
+			// OrderCourseCnt:   order.CourseCnt,
+		})
 	}
+
+	return result
 }
