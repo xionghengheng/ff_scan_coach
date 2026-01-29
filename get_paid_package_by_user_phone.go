@@ -173,8 +173,8 @@ func GetPaidPackageByUserPhoneHandler(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 
-		mapPackageId2Order := make(map[string]model.PaymentOrderModel)
-		mapPackageId2Order[v.PackageID] = vecPaymentOrderModel[0]
+		mapPackageId2Order := make(map[string][]model.PaymentOrderModel)
+		mapPackageId2Order[v.PackageID] = vecPaymentOrderModel
 
 		item := ConvertPackageItemModel2PaidRspItem(v, mapAllCoach, mapALlCourseModel, mapAllUserModel, mapGym, mapPackageId2Order)
 		item.WeixinPayOrderId = vecPaymentOrderModel[0].OrderID
