@@ -223,17 +223,17 @@ func ConvertCourseItemModel2PaidRspItem(item model.CoursePackageSingleLessonMode
 	}
 
 	// 获取订单信息
-	var payPrice int64
-	if order, ok := mapPackageId2Order[item.PackageID]; ok {
-		payPrice = int64(order.Price + order.DiscountAmount)
-	}
+	//var payPrice int64
+	//if order, ok := mapPackageId2Order[item.PackageID]; ok {
+	//	payPrice = int64(order.Price + order.DiscountAmount)
+	//}
 
 	// 基于订单原价换算真实的单次课价格
 	totalCnt := mapAllPaidPackageModel[item.PackageID].TotalCnt
-	coursePrice := 0
-	if totalCnt > 0 && payPrice > 0 {
-		coursePrice = int(payPrice) / totalCnt
-	}
+	//coursePrice := 0
+	//if totalCnt > 0 && payPrice > 0 {
+	//	coursePrice = int(payPrice) / totalCnt
+	//}
 
 	return PaidLessonItem{
 		Uid:              item.Uid,
@@ -247,7 +247,7 @@ func ConvertCourseItemModel2PaidRspItem(item model.CoursePackageSingleLessonMode
 		GymName:          mapGym[item.GymId].LocName,
 		CourseId:         item.CourseID,
 		CourseName:       mapALlCourseModel[item.CourseID].Name,
-		CoursePrice:      coursePrice,
+		CoursePrice:      mapALlCourseModel[item.CourseID].Price,
 		CoachId:          item.CoachId,
 		CoachName:        mapAllCoach[item.CoachId].CoachName,
 		CreateTs:         item.CreateTs,
