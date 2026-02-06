@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
 )
@@ -119,7 +120,7 @@ func CreatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 	Printf("CreatePreTrialLesson succ, preTrialLesson:%+v\n", preTrialLesson)
 
 	// 第二步：生成包含记录ID的token
-	h5Token := generateH5LinkToken(preTrialLesson.ID, nowTs)
+	h5Token := comm.GenerateH5LinkToken(preTrialLesson.ID, nowTs)
 
 	// 第三步：更新token到记录中
 	mapUpdates := make(map[string]interface{})
