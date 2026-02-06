@@ -59,6 +59,8 @@ github.com/xionghengheng/ff_plib v0.0.0-20260201131600-dba72e05046d h1:ZuJJ35Yqz
 github.com/xionghengheng/ff_plib v0.0.0-20260201131600-dba72e05046d/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
 github.com/xionghengheng/ff_plib v0.0.0-20260206151607-98301bfd686b h1:MyWpWSfoUSsUS5FNUx449EKmhKVyAPYanjG/NnzB7Wc=
 github.com/xionghengheng/ff_plib v0.0.0-20260206151607-98301bfd686b/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
+github.com/xionghengheng/ff_plib v0.0.0-20260206153542-3f1ea43e42f1 h1:tkZKqHC8GXXCOxlkmu7Wcdbwvn+RpbOnm4gJgLj3n8A=
+github.com/xionghengheng/ff_plib v0.0.0-20260206153542-3f1ea43e42f1/go.mod h1:J2tFL8+cZKcNWIqzVdNm/9WlLE1ELpCvUzN3eo62NHU=
 golang.org/x/crypto v0.0.0-20190308221718-c2843e01d9a2/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c/go.mod h1:djNgcEr1/C05ACkg1iLfiJU5Ep61QUkGW8qpdssI0+w=
 golang.org/x/crypto v0.0.0-20191205180655-e7c4368fe9dd h1:GGJVjV8waZKRHrgwvtH66z9ZGVurTD1MT0n1Bb+q4aM=
