@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/xionghengheng/ff_plib/comm"
 	"github.com/xionghengheng/ff_plib/db/dao"
 	"github.com/xionghengheng/ff_plib/db/model"
 )
@@ -94,7 +95,7 @@ func UpdatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 
 	// 检查状态：已过期、已取消和已完成（已使用）的不支持更新
 	// 同时需要检查是否实时过期（待使用状态但已超过24小时）
-	linkStatus := GetRealLinkStatus(preTrialLesson.LinkStatus, preTrialLesson.CreatedTs)
+	linkStatus := comm.GetRealLinkStatus(preTrialLesson.LinkStatus, preTrialLesson.CreatedTs)
 
 	switch linkStatus {
 	case model.Enum_Link_Status_Used:
