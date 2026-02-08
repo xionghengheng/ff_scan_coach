@@ -49,6 +49,8 @@ func main() {
 
 	mux.HandleFunc("/api/getAllGymList", GetAllGymListHandler)
 
+	mux.HandleFunc("/api/getAllCourseList", GetAllCourseListHandler)
+
 	// 退费相关
 	mux.HandleFunc("/api/getPaidPackageByUserPhone", GetPaidPackageByUserPhoneHandler)
 	mux.HandleFunc("/api/refundPackage", RefundPackagePhoneHandler)
