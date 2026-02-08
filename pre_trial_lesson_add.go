@@ -184,7 +184,7 @@ func checkCreatePreTrialLessonParam(req *CreatePreTrialLessonReq) CheckParamResu
 		return CheckParamResult{Success: false, Code: -1010, ErrorMsg: "课程ID不存在"}
 	}
 	if courseInfo.Price != req.Price {
-		return CheckParamResult{Success: false, Code: -1011, ErrorMsg: fmt.Sprintf("价格与课程不匹配，课程体验价：%d，传入价格：%d", courseInfo.TrialPrice, req.Price)}
+		return CheckParamResult{Success: false, Code: -1011, ErrorMsg: fmt.Sprintf("价格与课程不匹配，课程体验价：%d，传入价格：%d", courseInfo.Price, req.Price)}
 	}
 
 	if req.LessonTimeBeg == 0 || req.LessonTimeEnd == 0 {
