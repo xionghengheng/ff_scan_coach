@@ -19,6 +19,8 @@ type CreatePreTrialLessonReq struct {
 	GymName       string `json:"gym_name"`        // 门店名称
 	CoachId       int    `json:"coach_id"`        // 教练ID
 	CoachName     string `json:"coach_name"`      // 教练名称
+	CourseId      int    `json:"course_id"`       // 课程ID
+	CourseName    string `json:"course_name"`     // 课程名称
 	LessonDate    int64  `json:"lesson_date"`     // 体验课日期（时间戳）
 	LessonTimeBeg int64  `json:"lesson_time_beg"` // 体验课开始时间（时间戳）
 	LessonTimeEnd int64  `json:"lesson_time_end"` // 体验课结束时间（时间戳）
@@ -82,7 +84,7 @@ func CreatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 参数校验
+	// 参数校验（包含课程价格校验）
 	checkParamResult := checkCreatePreTrialLessonParam(&req)
 	if !checkParamResult.Success {
 		rsp.Code = checkParamResult.Code
@@ -99,6 +101,7 @@ func CreatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 		TrainingNeed:  req.TrainingNeed,
 		GymID:         req.GymId,
 		CoachID:       req.CoachId,
+		CourseID:      req.CourseId,
 		LessonDate:    req.LessonDate,
 		LessonTimeBeg: req.LessonTimeBeg,
 		LessonTimeEnd: req.LessonTimeEnd,
@@ -165,6 +168,23 @@ func checkCreatePreTrialLessonParam(req *CreatePreTrialLessonReq) CheckParamResu
 
 	if req.GymId == 0 {
 		return CheckParamResult{Success: false, Code: -1003, ErrorMsg: "门店ID无效"}
+	}
+
+	if req.CourseId == 0 {
+		return CheckParamResult{Success: false, Code: -1008, ErrorMsg: "课程ID无效"}
+	}
+
+	// 校验课程ID对应的价格是否与传入价格一致
+	mapCourse, err := comm.GetAllCourse()
+	if err != nil {
+		return CheckParamResult{Success: false, Code: -1009, ErrorMsg: "获取课程信息失败"}
+	}
+	courseInfo, ok := mapCourse[req.CourseId]
+	if !ok {
+		return CheckParamResult{Success: false, Code: -1010, ErrorMsg: "课程ID不存在"}
+	}
+	if courseInfo.Price != req.Price {
+		return CheckParamResult{Success: false, Code: -1011, ErrorMsg: fmt.Sprintf("价格与课程不匹配，课程体验价：%d，传入价格：%d", courseInfo.TrialPrice, req.Price)}
 	}
 
 	if req.LessonTimeBeg == 0 || req.LessonTimeEnd == 0 {

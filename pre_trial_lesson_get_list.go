@@ -39,6 +39,8 @@ type PreTrialLessonItem struct {
 	GymName        string `json:"gym_name"`         // 门店名称
 	CoachId        int    `json:"coach_id"`         // 教练ID
 	CoachName      string `json:"coach_name"`       // 教练名称
+	CourseId       int    `json:"course_id"`        // 课程ID
+	CourseName     string `json:"course_name"`      // 课程名称
 	LessonDate     string `json:"lesson_date"`      // 体验课日期（格式化）
 	LessonTimeBeg  string `json:"lesson_time_beg"`  // 体验课开始时间（格式化）
 	LessonTimeEnd  string `json:"lesson_time_end"`  // 体验课结束时间（格式化）
@@ -142,9 +144,10 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	Printf("GetTrailManageList succ, offset:%d pageSize:%d list:%+v\n", offset, pageSize, list)
 
-	// 获取所有门店和教练信息，用于查询最新名称
+	// 获取所有门店、教练和课程信息，用于查询最新名称
 	mapGym, _ := comm.GetAllGym()
 	mapCoach, _ := comm.GetAllCoach()
+	mapCourse, _ := comm.GetAllCourse()
 
 	// 转换为响应格式
 	rsp.List = make([]PreTrialLessonItem, 0, len(list))
@@ -162,7 +165,7 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 			statusText = "已取消"
 		}
 
-		// 根据ID获取门店名称和教练名称
+		// 根据ID获取门店名称、教练名称和课程名称
 		gymName := ""
 		if gymInfo, ok := mapGym[item.GymID]; ok {
 			gymName = gymInfo.LocName
@@ -170,6 +173,10 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 		coachName := ""
 		if coachInfo, ok := mapCoach[item.CoachID]; ok {
 			coachName = coachInfo.CoachName
+		}
+		courseName := ""
+		if courseInfo, ok := mapCourse[item.CourseID]; ok {
+			courseName = courseInfo.Name
 		}
 
 		rsp.List = append(rsp.List, PreTrialLessonItem{
@@ -181,6 +188,8 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 			GymName:        gymName,
 			CoachId:        item.CoachID,
 			CoachName:      coachName,
+			CourseId:       item.CourseID,
+			CourseName:     courseName,
 			LessonDate:     time.Unix(item.LessonDate, 0).Format("2006-01-02"),
 			LessonTimeBeg:  time.Unix(item.LessonTimeBeg, 0).Format("15:04"),
 			LessonTimeEnd:  time.Unix(item.LessonTimeEnd, 0).Format("15:04"),

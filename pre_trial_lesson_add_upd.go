@@ -17,6 +17,7 @@ type UpdatePreTrialLessonReq struct {
 	TrainingNeed  string `json:"training_need"`   // 训练需求
 	GymId         int    `json:"gym_id"`          // 门店ID
 	CoachId       int    `json:"coach_id"`        // 教练ID
+	CourseId      int    `json:"course_id"`       // 课程ID
 	LessonDate    int64  `json:"lesson_date"`     // 体验课日期（时间戳）
 	LessonTimeBeg int64  `json:"lesson_time_beg"` // 体验课开始时间（时间戳）
 	LessonTimeEnd int64  `json:"lesson_time_end"` // 体验课结束时间（时间戳）
@@ -133,6 +134,9 @@ func UpdatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.CoachId > 0 {
 		mapUpdates["coach_id"] = req.CoachId
+	}
+	if req.CourseId > 0 {
+		mapUpdates["course_id"] = req.CourseId
 	}
 	if req.LessonDate > 0 {
 		mapUpdates["lesson_date"] = req.LessonDate
