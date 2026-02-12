@@ -217,44 +217,51 @@ func checkCreatePreTrialLessonParam(req *CreatePreTrialLessonReq) CheckParamResu
 	return CheckParamResult{Success: true}
 }
 
-// 前置检查：教练是否绑定场地 & 用户是否已有有效预体验课
-func preCheckCreatePreTrialLesson(req *CreatePreTrialLessonReq) CheckParamResult {
-	// 检查1：教练是否绑定了对应的场地
+// preCheckCoachBindGym 检查教练是否绑定了对应的场地
+func preCheckCoachBindGym(coachId int, gymId int) CheckParamResult {
 	mapAllCoach, err := comm.GetAllCoach()
 	if err != nil {
 		Printf("preCheck GetAllCoach err, err:%+v\n", err)
 		return CheckParamResult{Success: false, Code: -1020, ErrorMsg: "获取教练信息失败"}
 	}
-	coachModel, ok := mapAllCoach[req.CoachId]
+	coachModel, ok := mapAllCoach[coachId]
 	if !ok {
-		Printf("preCheck Coach not found, coachId:%d\n", req.CoachId)
+		Printf("preCheck Coach not found, coachId:%d\n", coachId)
 		return CheckParamResult{Success: false, Code: -1021, ErrorMsg: "教练不存在"}
 	}
-	coachBoundGym := false
-	for _, gymId := range comm.GetAllGymIds(coachModel.GymIDs) {
-		if gymId == req.GymId {
-			coachBoundGym = true
-			break
+	for _, gid := range comm.GetAllGymIds(coachModel.GymIDs) {
+		if gid == gymId {
+			return CheckParamResult{Success: true}
 		}
 	}
-	if !coachBoundGym {
-		Printf("preCheck Coach not bound to gym, coachId:%d gymId:%d coachGymIDs:%s\n", req.CoachId, req.GymId, coachModel.GymIDs)
-		return CheckParamResult{Success: false, Code: -1022, ErrorMsg: "该教练未绑定所选场地，请检查教练和场地的对应关系"}
-	}
+	Printf("preCheck Coach not bound to gym, coachId:%d gymId:%d coachGymIDs:%s\n", coachId, gymId, coachModel.GymIDs)
+	return CheckParamResult{Success: false, Code: -1022, ErrorMsg: "该教练未绑定所选场地，请检查教练和场地的对应关系"}
+}
 
-	// 检查2：用户是否已有有效的预体验课（待使用状态）
-	existList, err := dao.ImpPreTrailManage.GetTrailManageListByPhone(req.UserPhone)
+// preCheckUserNoDuplicatePending 检查用户是否已有有效的预体验课（待使用状态）
+func preCheckUserNoDuplicatePending(userPhone string) CheckParamResult {
+	existList, err := dao.ImpPreTrailManage.GetTrailManageListByPhone(userPhone)
 	if err != nil {
-		Printf("preCheck GetTrailManageListByPhone err, phone:%s err:%+v\n", req.UserPhone, err)
+		Printf("preCheck GetTrailManageListByPhone err, phone:%s err:%+v\n", userPhone, err)
 		return CheckParamResult{Success: false, Code: -1023, ErrorMsg: "查询用户预体验课记录失败"}
 	}
 	for _, item := range existList {
 		realStatus := comm.GetRealLinkStatus(item.LinkStatus, item.CreatedTs)
 		if realStatus == model.Enum_Link_Status_Pending {
-			Printf("preCheck User already has valid pre-trial lesson, phone:%s existId:%d\n", req.UserPhone, item.ID)
+			Printf("preCheck User already has valid pre-trial lesson, phone:%s existId:%d\n", userPhone, item.ID)
 			return CheckParamResult{Success: false, Code: -1024, ErrorMsg: "该用户已有一条有效的预体验课记录，不能重复添加"}
 		}
 	}
+	return CheckParamResult{Success: true}
+}
 
+// preCheckCreatePreTrialLesson 创建预体验课前置检查：教练绑定场地 + 用户无重复
+func preCheckCreatePreTrialLesson(req *CreatePreTrialLessonReq) CheckParamResult {
+	if result := preCheckCoachBindGym(req.CoachId, req.GymId); !result.Success {
+		return result
+	}
+	if result := preCheckUserNoDuplicatePending(req.UserPhone); !result.Success {
+		return result
+	}
 	return CheckParamResult{Success: true}
 }

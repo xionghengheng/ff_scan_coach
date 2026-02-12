@@ -116,6 +116,22 @@ func UpdatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 前置检查：教练是否绑定场地（使用更新后的值，未传则用原记录的值）
+	checkCoachId := preTrialLesson.CoachID
+	if req.CoachId > 0 {
+		checkCoachId = req.CoachId
+	}
+	checkGymId := preTrialLesson.GymID
+	if req.GymId > 0 {
+		checkGymId = req.GymId
+	}
+	preCheckResult := preCheckCoachBindGym(checkCoachId, checkGymId)
+	if !preCheckResult.Success {
+		rsp.Code = preCheckResult.Code
+		rsp.ErrorMsg = preCheckResult.ErrorMsg
+		return
+	}
+
 	// 校验更新参数
 	checkResult := checkUpdatePreTrialLessonParam(&req)
 	if !checkResult.Success {
