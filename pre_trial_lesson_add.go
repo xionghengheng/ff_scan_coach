@@ -92,6 +92,14 @@ func CreatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// 前置检查：教练是否绑定场地 & 用户是否已有有效预体验课
+	preCheckResult := preCheckCreatePreTrialLesson(&req)
+	if !preCheckResult.Success {
+		rsp.Code = preCheckResult.Code
+		rsp.ErrorMsg = preCheckResult.ErrorMsg
+		return
+	}
+
 	// 生成数据
 	nowTs := time.Now().Unix()
 
@@ -201,6 +209,48 @@ func checkCreatePreTrialLessonParam(req *CreatePreTrialLessonReq) CheckParamResu
 
 	if req.LessonTimeBeg >= req.LessonTimeEnd {
 		return CheckParamResult{Success: false, Code: -1005, ErrorMsg: "体验课开始时间必须早于结束时间"}
+	}
+
+	return CheckParamResult{Success: true}
+}
+
+// 前置检查：教练是否绑定场地 & 用户是否已有有效预体验课
+func preCheckCreatePreTrialLesson(req *CreatePreTrialLessonReq) CheckParamResult {
+	// 检查1：教练是否绑定了对应的场地
+	mapAllCoach, err := comm.GetAllCoach()
+	if err != nil {
+		Printf("preCheck GetAllCoach err, err:%+v\n", err)
+		return CheckParamResult{Success: false, Code: -1020, ErrorMsg: "获取教练信息失败"}
+	}
+	coachModel, ok := mapAllCoach[req.CoachId]
+	if !ok {
+		Printf("preCheck Coach not found, coachId:%d\n", req.CoachId)
+		return CheckParamResult{Success: false, Code: -1021, ErrorMsg: "教练不存在"}
+	}
+	coachBoundGym := false
+	for _, gymId := range comm.GetAllGymIds(coachModel.GymIDs) {
+		if gymId == req.GymId {
+			coachBoundGym = true
+			break
+		}
+	}
+	if !coachBoundGym {
+		Printf("preCheck Coach not bound to gym, coachId:%d gymId:%d coachGymIDs:%s\n", req.CoachId, req.GymId, coachModel.GymIDs)
+		return CheckParamResult{Success: false, Code: -1022, ErrorMsg: "该教练未绑定所选场地，请检查教练和场地的对应关系"}
+	}
+
+	// 检查2：用户是否已有有效的预体验课（待使用状态）
+	existRecord, err := dao.ImpPreTrailManage.GetTrailManageByPhone(req.UserPhone)
+	if err != nil {
+		Printf("preCheck GetTrailManageByPhone err, phone:%s err:%+v\n", req.UserPhone, err)
+		return CheckParamResult{Success: false, Code: -1023, ErrorMsg: "查询用户预体验课记录失败"}
+	}
+	if existRecord != nil {
+		realStatus := comm.GetRealLinkStatus(existRecord.LinkStatus, existRecord.CreatedTs)
+		if realStatus == model.Enum_Link_Status_Pending {
+			Printf("preCheck User already has valid pre-trial lesson, phone:%s existId:%d\n", req.UserPhone, existRecord.ID)
+			return CheckParamResult{Success: false, Code: -1024, ErrorMsg: "该用户已有一条有效的预体验课记录，不能重复添加"}
+		}
 	}
 
 	return CheckParamResult{Success: true}
