@@ -43,13 +43,13 @@ func main() {
 	// ----------------------------教练信息管理平台----------------------------//
 	mux.HandleFunc("/api/getAllCoachList", GetAllCoachListHandler)
 
-	mux.HandleFunc("/api/bindUser2Coach", bindUser2CoachHandler)
-
-	mux.HandleFunc("/api/updateCoach", UpdateCoachHandler)
-
 	mux.HandleFunc("/api/getAllGymList", GetAllGymListHandler)
 
 	mux.HandleFunc("/api/getAllCourseList", GetAllCourseListHandler)
+
+	mux.HandleFunc("/api/bindUser2Coach", bindUser2CoachHandler)
+
+	mux.HandleFunc("/api/updateCoach", UpdateCoachHandler)
 
 	// 退费相关
 	mux.HandleFunc("/api/getPaidPackageByUserPhone", GetPaidPackageByUserPhoneHandler)
