@@ -240,15 +240,15 @@ func preCheckCreatePreTrialLesson(req *CreatePreTrialLessonReq) CheckParamResult
 	}
 
 	// 检查2：用户是否已有有效的预体验课（待使用状态）
-	existRecord, err := dao.ImpPreTrailManage.GetTrailManageByPhone(req.UserPhone)
+	existList, err := dao.ImpPreTrailManage.GetTrailManageListByPhone(req.UserPhone)
 	if err != nil {
-		Printf("preCheck GetTrailManageByPhone err, phone:%s err:%+v\n", req.UserPhone, err)
+		Printf("preCheck GetTrailManageListByPhone err, phone:%s err:%+v\n", req.UserPhone, err)
 		return CheckParamResult{Success: false, Code: -1023, ErrorMsg: "查询用户预体验课记录失败"}
 	}
-	if existRecord != nil {
-		realStatus := comm.GetRealLinkStatus(existRecord.LinkStatus, existRecord.CreatedTs)
+	for _, item := range existList {
+		realStatus := comm.GetRealLinkStatus(item.LinkStatus, item.CreatedTs)
 		if realStatus == model.Enum_Link_Status_Pending {
-			Printf("preCheck User already has valid pre-trial lesson, phone:%s existId:%d\n", req.UserPhone, existRecord.ID)
+			Printf("preCheck User already has valid pre-trial lesson, phone:%s existId:%d\n", req.UserPhone, item.ID)
 			return CheckParamResult{Success: false, Code: -1024, ErrorMsg: "该用户已有一条有效的预体验课记录，不能重复添加"}
 		}
 	}
