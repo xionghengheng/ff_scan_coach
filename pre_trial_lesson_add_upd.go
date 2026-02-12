@@ -57,8 +57,8 @@ func UpdatePreTrialLessonHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(msg)
 	}()
 
-	// 验证管理员身份
-	authResult := ValidateAdminAuth(r)
+	// 身份验证：优先通过OpenID识别顾问，否则走管理员账号密码校验
+	authResult := ValidateConsultantOrAdminAuth(r)
 	if !authResult.Success {
 		rsp.Code = authResult.Code
 		rsp.ErrorMsg = authResult.ErrorMsg

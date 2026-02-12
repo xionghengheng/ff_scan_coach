@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
@@ -78,37 +77,11 @@ func GetPreTrialLessonListHandler(w http.ResponseWriter, r *http.Request) {
 		w.Write(msg)
 	}()
 
-	// 验证管理员用户名和密码
-	adminUserName := os.Getenv("ADMIN_USER_NAME")
-	adminPasswd := os.Getenv("ADMIN_PASSWD")
-	if len(adminUserName) == 0 || len(adminPasswd) == 0 {
-		rsp.Code = -900
-		rsp.ErrorMsg = "后台配置错误"
-		Printf("conf err, adminUserName:%s adminPasswd:%s\n", adminUserName, adminPasswd)
-		return
-	}
-
-	// 从header中提取用户名和密码进行校验
-	username := r.Header.Get("X-Username")
-	if username == "" {
-		rsp.Code = -995
-		rsp.ErrorMsg = "缺少X-Username header"
-		Printf("GetPreTrialLessonListHandler missing X-Username header\n")
-		return
-	}
-
-	password := r.Header.Get("X-Password")
-	if password == "" {
-		rsp.Code = -995
-		rsp.ErrorMsg = "缺少X-Password header"
-		Printf("GetPreTrialLessonListHandler missing X-Password header\n")
-		return
-	}
-
-	if username != adminUserName || password != adminPasswd {
-		rsp.Code = -994
-		rsp.ErrorMsg = "用户名或密码错误"
-		Printf("GetPreTrialLessonListHandler auth failed, username:%s\n", username)
+	// 身份验证：优先通过OpenID识别顾问，否则走管理员账号密码校验
+	authResult := ValidateConsultantOrAdminAuth(r)
+	if !authResult.Success {
+		rsp.Code = authResult.Code
+		rsp.ErrorMsg = authResult.ErrorMsg
 		return
 	}
 
